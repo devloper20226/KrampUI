@@ -5,6 +5,9 @@
 </div>
 <br />
 
+## Project Archived
+This project is no longer actively being maintained.
+
 ## Getting KrampUI
 ### Download the binary,
 - [Standalone Application](https://git.snipcola.com/snipcola/KrampUI/releases/download/latest/krampui.exe) (single .exe)
