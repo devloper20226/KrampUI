@@ -11,6 +11,11 @@ export type UISettings = {
 export default class SettingsManager {
     static currentSettings: UISettings | null = null
 
+    private static announceSettingsInitialize() {
+        console.log("Settings initialized!");
+        console.log(this.currentSettings);
+    }
+
     static async initializeSettings() {
         if (this.currentSettings !== null) return;
         const doesDataFolderExist = await FilesystemService.exists("data");
@@ -22,12 +27,11 @@ export default class SettingsManager {
             keyToggle: false
         }
 
-        console.log("called")
-
         if (!doesDataFolderExist) {
             await FilesystemService.createDirectory("data")
             await FilesystemService.writeFile("data/settings.json", JSON.stringify(defaultSettings, null, 2));
             this.currentSettings = defaultSettings;
+            this.announceSettingsInitialize();
             return;
         }
 
@@ -36,6 +40,7 @@ export default class SettingsManager {
         if (!settingsFileExists) {
             await FilesystemService.writeFile("data/settings.json", JSON.stringify(defaultSettings, null, 2));
             this.currentSettings = defaultSettings;
+            this.announceSettingsInitialize();
             return;
         }
 
@@ -50,6 +55,7 @@ export default class SettingsManager {
         }
 
         this.currentSettings = parsedJson;
+        this.announceSettingsInitialize();
     }
 
     private static async saveSettings() {

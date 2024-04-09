@@ -8,6 +8,11 @@ struct Payload {
   message: String,
 }
 
+#[tauri::command]
+fn log(message: String) {
+    println!("{}", message);
+}
+
 fn main() {
     let toggle = CustomMenuItem::new("toggle".to_string(), "Toggle");
     let quit = CustomMenuItem::new("quit".to_string(), "Quit");
@@ -32,7 +37,7 @@ fn main() {
             }
             _ => {}
         })
-        .invoke_handler(tauri::generate_handler![])
+        .invoke_handler(tauri::generate_handler![log])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
 }

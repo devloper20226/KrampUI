@@ -16,10 +16,6 @@ async function initializeComponents() {
 }
 
 document.addEventListener('DOMContentLoaded', async () => {
-  await appWindow.show();
-  await appWindow.setFocus();
-  document.body.classList.remove("kr-hidden");
-
   // Check for main config folder, if doesnt exists, create it
   if (!(await FilesystemService.exists(""))) {
     await FilesystemService.createDirectory("");
@@ -28,4 +24,8 @@ document.addEventListener('DOMContentLoaded', async () => {
   await SettingsManager.initializeSettings();
 
   await initializeComponents();
+
+  await appWindow.show();
+  await appWindow.setFocus();
+  document.body.classList.remove("kr-hidden");
 });

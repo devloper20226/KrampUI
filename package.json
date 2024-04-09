@@ -7,6 +7,7 @@
     "dev": "vite",
     "builds": "tsc && vite build",
     "build": "tauri build",
+    "debug": "tauri build --debug",
     "preview": "vite preview",
     "start": "tauri dev"
   },
