@@ -32,7 +32,7 @@
         "maximizable": true,
         "alwaysOnTop": true,
         "center": true,
-        "visible": false,
+        "visible": true,
         "transparent": true,
         "decorations": false
       }
