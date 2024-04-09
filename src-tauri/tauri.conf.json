@@ -1,0 +1,58 @@
+{
+  "build": {
+    "beforeDevCommand": "npm run dev",
+    "beforeBuildCommand": "npm run build",
+    "devPath": "http://localhost:1420",
+    "distDir": "../dist",
+    "withGlobalTauri": true
+  },
+  "package": {
+    "productName": "KrampUI",
+    "version": "0.0.0"
+  },
+  "tauri": {
+    "allowlist": {
+      "all": true,
+      "fs": {
+        "scope": ["**"]
+      },
+      "shell": {
+        "open": ".*",
+        "scope": [{ "name": "cmd", "cmd": "cmd", "args": true }]
+      }
+    },
+    "windows": [
+      {
+        "title": "KrampUI",
+        "minWidth": 400,
+        "minHeight": 200,
+        "width": 650,
+        "height": 375,
+        "resizable": true,
+        "maximizable": true,
+        "alwaysOnTop": true,
+        "center": true,
+        "visible": false,
+        "transparent": true,
+        "decorations": false
+      }
+    ],
+    "security": {
+      "csp": null
+    },
+    "bundle": {
+      "active": true,
+      "targets": "all",
+      "identifier": "KrampUI",
+      "publisher": "Snipcola, Pixeluted",
+      "category": "Utility",
+      "copyright": "Copyright @ 2024 Snipcola, Pixeluted",
+      "shortDescription": "Simple and lightweight frontend for Ro-Exec.",
+      "icon": ["./icons/icon.ico"]
+    },
+    "systemTray": {
+      "iconPath": "icons/icon.png",
+      "iconAsTemplate": true
+    }
+  }
+}
