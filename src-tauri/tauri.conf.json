@@ -1,7 +1,7 @@
 {
   "build": {
     "beforeDevCommand": "npm run dev",
-    "beforeBuildCommand": "npm run build",
+    "beforeBuildCommand": "npm run builds",
     "devPath": "http://localhost:1420",
     "distDir": "../dist",
     "withGlobalTauri": true
@@ -43,7 +43,7 @@
     "bundle": {
       "active": true,
       "targets": "all",
-      "identifier": "KrampUI",
+      "identifier": "KrampUI-REWRITE",
       "publisher": "Snipcola, Pixeluted",
       "category": "Utility",
       "copyright": "Copyright @ 2024 Snipcola, Pixeluted",

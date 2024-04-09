@@ -16,7 +16,6 @@
 
 .container {
   margin: 0;
-  padding-top: 10vh;
   display: flex;
   flex-direction: column;
   justify-content: center;
@@ -125,14 +124,14 @@ button {
 /* Font */
 @font-face {
   font-family: "Source Sans 3";
-  src: url(font.ttf) format("truetype");
+  src: url(/src/assets/font.ttf) format("truetype");
   font-weight: 350;
   font-style: normal;
 }
 
 @font-face {
   font-family: "Fira Code";
-  src: url(code_font.ttf) format("truetype");
+  src: url(/src/assets/font.ttf) format("truetype");
   font-weight: 350;
   font-style: normal;
 }
