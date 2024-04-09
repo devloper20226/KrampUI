@@ -1,6 +1,6 @@
 import onClick from "../Functions/OnClick";
 
-export default function initializeDropdowns() {
+export default () => {
     function findDropdown(element: HTMLElement | null): HTMLElement | null {
         if (!element) return null;
         if (element.classList.contains("kr-dropdown")) return element;
