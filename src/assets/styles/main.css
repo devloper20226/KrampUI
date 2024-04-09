@@ -124,14 +124,14 @@ button {
 /* Font */
 @font-face {
   font-family: "Source Sans 3";
-  src: url(/src/assets/font.ttf) format("truetype");
+  src: url(/src/assets/fonts/normal.ttf) format("truetype");
   font-weight: 350;
   font-style: normal;
 }
 
 @font-face {
   font-family: "Fira Code";
-  src: url(/src/assets/font.ttf) format("truetype");
+  src: url(/src/assets/fonts/code.ttf) format("truetype");
   font-weight: 350;
   font-style: normal;
 }
@@ -222,6 +222,7 @@ body > .container > *:not(.active):not(.kr-titlebar) {
   user-select: none;
   -webkit-user-drag: none;
   transition: background-color 0.2s;
+  text-align: left;
 }
 
 .kr-input::placeholder {
@@ -244,6 +245,10 @@ body > .container > *:not(.active):not(.kr-titlebar) {
   user-select: none;
   -webkit-user-drag: none;
   transition: background-color 0.2s;
+}
+
+.kr-button:active {
+  background-color: var(--primary);
 }
 
 /* Dropdown */
@@ -272,6 +277,7 @@ body > .container > *:not(.active):not(.kr-titlebar) {
   padding: 0.05rem 0.25rem;
   flex-direction: row-reverse;
   transition: background-color 0.2s;
+  height: 1rem;
 }
 
 .kr-dropdown-content > div > i {
