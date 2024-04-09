@@ -12,7 +12,11 @@ event.listen("exit", exit);
 
 
 async function initializeComponents() {
+  const compoments = import.meta.glob('./Compoments/*.ts', { eager: true });
 
+  Object.values(compoments).forEach((compoment: any) => {
+    compoment.default()
+  });
 }
 
 document.addEventListener('DOMContentLoaded', async () => {
