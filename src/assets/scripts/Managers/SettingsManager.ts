@@ -1,4 +1,5 @@
 import FilesystemService from "../Services/FilesystemService";
+import { exit } from "../main";
 
 export type UISettings = {
     autoLogin: boolean,
@@ -11,7 +12,7 @@ export type UISettings = {
 export default class SettingsManager {
     static currentSettings: UISettings | null = null
 
-    private static announceSettingsInitialize() {
+    private static announceSettingsInitialized() {
         console.log("Settings initialized!");
         console.log(this.currentSettings);
     }
@@ -31,7 +32,7 @@ export default class SettingsManager {
             await FilesystemService.createDirectory("data")
             await FilesystemService.writeFile("data/settings.json", JSON.stringify(defaultSettings, null, 2));
             this.currentSettings = defaultSettings;
-            this.announceSettingsInitialize();
+            this.announceSettingsInitialized();
             return;
         }
 
@@ -40,12 +41,12 @@ export default class SettingsManager {
         if (!settingsFileExists) {
             await FilesystemService.writeFile("data/settings.json", JSON.stringify(defaultSettings, null, 2));
             this.currentSettings = defaultSettings;
-            this.announceSettingsInitialize();
+            this.announceSettingsInitialized();
             return;
         }
 
         const settingsFileContent = await FilesystemService.readFile("data/settings.json");
-        if (typeof(settingsFileContent) == "boolean") return;
+        if (typeof(settingsFileContent) == "boolean") { alert("Failed to initialize Settings manager! (0x2)"); exit(); return };
 
         let parsedJson;
         try {
@@ -55,7 +56,7 @@ export default class SettingsManager {
         }
 
         this.currentSettings = parsedJson;
-        this.announceSettingsInitialize();
+        this.announceSettingsInitialized();
     }
 
     private static async saveSettings() {

@@ -44,4 +44,14 @@ export default class FilesystemService {
             return false;
         }
     }
+
+    static async deleteFile(filePath: string) {
+        try {
+          await fs.removeFile(filePath, { dir: fs.BaseDirectory.AppConfig });
+          return true;
+        } catch {
+          return false;
+        }
+      }
+      
 }
