@@ -33,7 +33,6 @@ export default class FilesystemService {
             await fs.createDir(dirPath, { dir: fs.BaseDirectory.AppConfig, recursive })
             return true;
         } catch (err) {
-            console.log(err)
             return false;
         }
     }
