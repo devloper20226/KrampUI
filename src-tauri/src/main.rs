@@ -118,6 +118,12 @@ async fn download_loader(window: Window, path: String, token: String) -> (bool, 
     };
 }
 
+#[derive(Clone, serde::Serialize)]
+struct SingleInstancePayload {
+  args: Vec<String>,
+  cwd: String,
+}
+
 #[tokio::main]
 async fn main() {
     let toggle = CustomMenuItem::new("toggle".to_string(), "Toggle");
@@ -143,6 +149,9 @@ async fn main() {
             }
             _ => {}
         })
+        .plugin(tauri_plugin_single_instance::init(|app, argv, cwd| {
+            app.emit_all("single-instance", SingleInstancePayload { args: argv, cwd }).unwrap();
+        }))
         .invoke_handler(tauri::generate_handler![
             log,
             attempt_login,
