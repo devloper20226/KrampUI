@@ -1,4 +1,5 @@
 
+import EditorManager from './EditorManager';
 export type UIState = "Attached" | "Injecting" | "Idle"
 
 export default class UIManager {
@@ -59,5 +60,6 @@ export default class UIManager {
     static loggedIn() {
         this.loginSection.classList.remove("active");
         this.exploitSection.classList.add("active");
+        EditorManager.setupEditor();
     }
 }

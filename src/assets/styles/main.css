@@ -569,6 +569,7 @@ body > .container > *:not(.active):not(.kr-titlebar) {
   border-radius: 2.5px;
   box-sizing: border-box;
   overflow: hidden;
+  text-align: left
 }
 
 .exploit > .main > .container-2 {
