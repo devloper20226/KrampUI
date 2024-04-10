@@ -12,7 +12,7 @@ export default class LoaderManager {
             await FilesystemService.createDirectory("autoexec");
         }
 
-        const doesWebsocketCodeExist = await FilesystemService.exists("autoexec/websocket.lua");
+        const doesWebsocketCodeExist = await FilesystemService.exists("autoexec/__krampui");
 
         if (!doesWebsocketCodeExist) {
             const code = `
