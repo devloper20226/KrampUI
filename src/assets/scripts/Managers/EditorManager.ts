@@ -9,8 +9,34 @@ export default class EditorManager {
     ".exploit .main .container .editor"
   ) as HTMLElement;
 
-  static getDependencyProposals(): any {
-    return [...this.editorProposals, ...this.dynamicEditorProposals];
+  static getDependencyProposals(model: monaco.editor.ITextModel, position: monaco.Position): any {
+    let editorProposals = this.editorProposals
+    let dynamicProposals = this.dynamicEditorProposals
+    const fullArray = []
+
+    const word = model.getWordUntilPosition(position);
+    const range = {
+      startLineNumber: position.lineNumber,
+      startColumn: word.startColumn,
+      endLineNumber: position.lineNumber,
+      endColumn: word.endColumn
+    };
+
+    for (const proposal of editorProposals) {
+      fullArray.push({
+        ...proposal,
+        range: range
+      })
+    }
+
+    for (const proposal of dynamicProposals) {
+      fullArray.push({
+        ...proposal,
+        range: range
+      })
+    }
+
+    return fullArray;
   }
 
   static updateIntelliSense() {
@@ -118,9 +144,9 @@ export default class EditorManager {
     if (this.editor !== null) return;
 
     monaco.languages.registerCompletionItemProvider("lua", {
-      provideCompletionItems: function() {
+      provideCompletionItems: function(model, position) {
         return {
-          suggestions: EditorManager.getDependencyProposals()
+          suggestions: EditorManager.getDependencyProposals(model, position)
         }
       }
     });
@@ -289,6 +315,7 @@ export default class EditorManager {
       "getsenv",
     ]) {
       this.editorAddIntellisense(key, "Method", key, key);
+      globalWords.push(key);
     }
 
     for (const key of [
