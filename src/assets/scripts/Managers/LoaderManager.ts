@@ -16,22 +16,22 @@ export default class LoaderManager {
 
         if (!doesWebsocketCodeExist) {
             const code = `
-while not getgenv().KR_READY and task.wait(1) do
-    pcall(function()
-        getgenv().KR_WEBSOCKET = websocket.connect("ws://127.0.0.1:${this.wsPort}")
-        getgenv().KR_WEBSOCKET:Send("connect")
-        getgenv().KR_READY = true
+                while not getgenv().KR_READY and task.wait(1) do
+                    pcall(function()
+                        getgenv().KR_WEBSOCKET = websocket.connect("ws://127.0.0.1:${this.wsPort}")
+                        getgenv().KR_WEBSOCKET:Send("connect")
+                        getgenv().KR_READY = true
 
-        getgenv().KR_WEBSOCKET.OnMessage:Connect(function(message)
-            pcall(function()
-                loadstring(message)()
-            end)
-        end)
-    end)
-end
-            `;
+                        getgenv().KR_WEBSOCKET.OnMessage:Connect(function(message)
+                            pcall(function()
+                                loadstring(message)()
+                            end)
+                        end)
+                    end)
+                end
+            `.replace(/(--.*$|\/\*[\s\S]*?\*\/)/gm, "").replace(/\s+/g, " ").trim();
 
-            await FilesystemService.writeFile("autoexec/websocket.lua", code);
+            await FilesystemService.writeFile("autoexec/__krampui", code);
         }
     }
 

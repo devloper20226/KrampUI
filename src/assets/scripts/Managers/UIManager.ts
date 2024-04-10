@@ -73,7 +73,7 @@ export default class UIManager {
             if (isRobloxRunning == this.isRobloxFound) return;
 
             this.updateRobloxFound(isRobloxRunning);
-        }, 500)
+        }, 500);
     }
 
     static executableReady() {

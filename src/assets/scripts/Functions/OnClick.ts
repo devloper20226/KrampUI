@@ -1,11 +1,11 @@
 export default function onClick(element: HTMLElement, cb: (button: string, event: MouseEvent) => void) {
     let down = false;
 
-    element.addEventListener("mousedown", () => {
+    element.addEventListener("mousedown", function () {
         down = true;
     });
 
-    element.addEventListener("mouseup", (e: MouseEvent) => {
+    element.addEventListener("mouseup", function (e: MouseEvent) {
         if (down && !element?.classList?.contains("disabled")) {
             let button: string;
 

@@ -55,19 +55,20 @@ export default class SettingsManager {
             return abort();
         };
 
-        let parsedJson;
+        let settings: UISettings;
+        
         try {
-            parsedJson = JSON.parse(settingsFileContent);
+            settings = JSON.parse(settingsFileContent);
         } catch {
             return abort();
         }
 
-        this.currentSettings = parsedJson;
+        this.currentSettings = settings;
         this.announceSettingsInitialized();
     }
 
     private static async saveSettings() {
-        await FilesystemService.writeFile("data/settings.json", JSON.stringify(this.currentSettings, null, 2))
+        await FilesystemService.writeFile("data/settings.json", JSON.stringify(this.currentSettings, null, 2));
     }
 
     static async setSetting(settingName: string, value: boolean) {

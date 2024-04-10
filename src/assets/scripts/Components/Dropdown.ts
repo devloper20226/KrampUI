@@ -1,13 +1,13 @@
 import onClick from "../Functions/OnClick";
 
-export default () => {
+export default function () {
     function findDropdown(element: HTMLElement | null): HTMLElement | null {
         if (!element) return null;
         if (element.classList.contains("kr-dropdown")) return element;
         return findDropdown(element.parentElement);
     }
 
-    onClick(document.documentElement, async (button: string, event: MouseEvent) => {
+    onClick(document.documentElement, async function (button: string, event: MouseEvent) {
         const target = event.target as HTMLElement;
         const foundDropdown = findDropdown(target);
         const foundDropdownContent = foundDropdown && Array.from(foundDropdown.querySelectorAll<HTMLElement>(".kr-dropdown-content")).find(d => d.parentElement === foundDropdown);

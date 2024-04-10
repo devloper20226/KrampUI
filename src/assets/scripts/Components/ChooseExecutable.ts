@@ -3,7 +3,7 @@ import LoaderManager from "../Managers/LoaderManager";
 import UIManager from "../Managers/UIManager";
 import FilesystemService from "../Services/FilesystemService";
 
-export default async () => {
+export default async function () {
     const chooseLoaderButton = document.querySelector(".choose-loader-button") as HTMLElement;
     const loaderFound = await LoaderManager.findLoader();
 

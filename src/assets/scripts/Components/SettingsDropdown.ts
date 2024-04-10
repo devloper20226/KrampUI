@@ -1,6 +1,6 @@
 import SettingsManager from "../Managers/SettingsManager";
 
-export default async () => {
+export default async function () {
     const settingsMap: Record<string, string> = {
         keyToggle: ".kr-dropdown-key-toggle",
         autoInject: ".kr-dropdown-auto-inject",
@@ -23,7 +23,7 @@ export default async () => {
         updateDropdown(settingKey, settingsMap[settingKey]);
     }
 
-    Object.entries(settingsMap).forEach(([settingKey, selector]) => {
+    Object.entries(settingsMap).forEach(function ([settingKey, selector]) {
         const element = document.querySelector(selector) as HTMLElement;
         element.addEventListener("click", () => toggleSetting(settingKey));
         updateDropdown(settingKey, selector);

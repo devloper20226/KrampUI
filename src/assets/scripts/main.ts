@@ -2,9 +2,10 @@ import { event, process } from "@tauri-apps/api";
 import { appWindow } from "@tauri-apps/api/window";
 import SettingsManager from "./Managers/SettingsManager";
 import FilesystemService from "./Services/FilesystemService";
+import TabsManager from "./Managers/TabsManager";
 
 export async function exit() {
-  //TODO: Set unsaved tab data
+  // TODO: Set unsaved tab data
   await process.exit();
 }
 
@@ -12,21 +13,20 @@ event.listen("exit", exit);
 
 
 async function initializeComponents() {
-  const compoments = import.meta.glob('./Components/*.ts', { eager: true });
+  const components = import.meta.glob('./Components/*.ts', { eager: true });
 
-  Object.values(compoments).forEach((compoment: any) => {
-    compoment.default()
+  Object.values(components).forEach(function (component: any) {
+    component.default()
   });
 }
 
-document.addEventListener('DOMContentLoaded', async () => {
-  // Check for main config folder, if doesnt exists, create it
+document.addEventListener('DOMContentLoaded', async function () {
   if (!(await FilesystemService.exists(""))) {
     await FilesystemService.createDirectory("");
   }
 
   await SettingsManager.initializeSettings();
-
+  await TabsManager.initializeTabs();
   await initializeComponents();
 
   await appWindow.show();
