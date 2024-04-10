@@ -431,7 +431,9 @@ export default class EditorManager {
       tokenizer: {
         root: [
           [new RegExp(`\\b(${globalWords.join('|')})\\b`, 'g'), "global"],
-          [new RegExp(`\\b(${keyWords.join('|')})\\b`, 'g'), "keyword"]
+          [new RegExp(`\\b(${keyWords.join('|')})\\b`, 'g'), "keyword"],
+          [/"(?:\\.|[^\\"])*"|'(?:\\.|[^\\'])*'/gm, "string"],
+          [/-?\b\d+(\.\d+)?(e[+-]?\d+)?\b/gi, "number"]
         ]
       }
     })
