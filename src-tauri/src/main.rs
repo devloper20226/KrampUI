@@ -55,6 +55,9 @@ fn attempt_login(_window: Window, email: String, password: String) -> (bool, Str
 
     let client = Client::new();
     let login_request = client.post("https://api.acedia.gg/trpc/auth.logIn?batch=1")
+        .header("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:124.0) Gecko/20100101 Firefox/124.0")
+        .header("Referer", "https://acedia.gg/")
+        .header("Host", "acedia.gg")
         .header("Content-Type", "application/json")
         .json(&json_map)
         .timeout(Duration::from_secs(5))
@@ -88,6 +91,9 @@ fn attempt_login(_window: Window, email: String, password: String) -> (bool, Str
 fn get_login_token(_window: Window, session_token: String) -> (bool, String) {
     let client = Client::new();
     let info_request = client.get("https://api.acedia.gg/trpc/user.current.get?batch=1&input={}")
+        .header("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:124.0) Gecko/20100101 Firefox/124.0")
+        .header("Referer", "https://acedia.gg/")
+        .header("Host", "acedia.gg")
         .header("Authorization", format!("Bearer {}", session_token))
         .timeout(Duration::from_secs(5))
         .send();
@@ -118,6 +124,9 @@ fn get_login_token(_window: Window, session_token: String) -> (bool, String) {
 fn download_executable(window: Window, path: &str, token: &str) -> (bool, String) {
     let client = Client::new();
     let response = client.get(format!("https://api.acedia.gg/download?product=RO-EXEC&login_token={}", token))
+        .header("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:124.0) Gecko/20100101 Firefox/124.0")
+        .header("Referer", "https://acedia.gg/")
+        .header("Host", "acedia.gg")
         .timeout(Duration::from_secs(10))
         .send();
 
