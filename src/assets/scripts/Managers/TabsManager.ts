@@ -18,6 +18,7 @@ export type FileTab = {
 };
 
 export type UnsavedTab = {
+    id: string,
     content: string,
     scroll: number
 };
@@ -83,6 +84,40 @@ export default class TabsManager {
         this.tabs = tabs;
         this.unsavedTabs = unsavedTabs;
         this.announceTabsInitialized();
+    }
+
+    // TODO: use this function for other stuff
+    static isFileTab(tab: ScriptTab | FileTab): tab is FileTab {
+        return (tab as FileTab).path !== undefined;
+    }
+    
+
+    static async addTab(tab: ScriptTab | FileTab) {
+        this.tabs?.push(tab);
+        await this.saveTabs();
+    }
+
+    static async removeTab(tab: ScriptTab | FileTab) {
+        const index = this.tabs?.findIndex((t) => t.id === tab.id);
+
+        if (index) {
+            this.tabs?.splice(index, 1);
+            await this.saveTabs();
+        }
+    }
+
+    static async addUnsavedTab(tab: UnsavedTab) {
+        this.unsavedTabs?.push(tab);
+        await this.saveUnsavedTabs();
+    }
+
+    static async removeUnsavedTab(tab: UnsavedTab) {
+        const index = this.unsavedTabs?.findIndex((t) => t.id === tab.id);
+
+        if (index) {
+            this.unsavedTabs?.splice(index, 1);
+            await this.saveUnsavedTabs();
+        }
     }
 
     private static async saveTabs() {
