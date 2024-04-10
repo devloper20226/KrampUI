@@ -1,6 +1,7 @@
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 
 use std::{thread::sleep, time::Duration};
+use sysinfo::System;
 use tauri::{CustomMenuItem, Manager, SystemTray, SystemTrayEvent, SystemTrayMenu, WindowEvent};
 
 #[derive(Clone, serde::Serialize)]
@@ -11,6 +12,19 @@ struct Payload {
 #[tauri::command]
 fn log(message: String) {
     println!("{}", message);
+}
+
+#[tauri::command]
+fn kill_roblox() -> bool {
+    return match System::new_all().processes_by_name("RobloxPlayerBeta.exe").next() {
+        Some(process) => process.kill(),
+        _ => false
+    };
+}
+
+#[tauri::command]
+fn is_roblox_running() -> bool {
+    return System::new_all().processes_by_name("RobloxPlayerBeta.exe").next().is_some();
 }
 
 #[derive(Clone, serde::Serialize)]
@@ -48,7 +62,9 @@ async fn main() {
             app.emit_all("single-instance", SingleInstancePayload { args: argv, cwd }).unwrap();
         }))
         .invoke_handler(tauri::generate_handler![
-            log
+            log,
+            is_roblox_running,
+            kill_roblox
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

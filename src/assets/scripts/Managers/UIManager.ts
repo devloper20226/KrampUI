@@ -1,10 +1,11 @@
 
+import { invoke } from '@tauri-apps/api';
 import EditorManager from './EditorManager';
 export type UIState = "Attached" | "Injecting" | "Idle"
 
 export default class UIManager {
     static currentState: UIState = "Idle"
-    static robloxRobloxFound: boolean = false
+    static isRobloxFound: boolean = false
 
     private static UIIndicator = document.querySelector(".kr-titlebar .brand .text") as HTMLElement;
     private static injectButton = document.querySelector(".kr-inject") as HTMLElement;
@@ -37,10 +38,14 @@ export default class UIManager {
             this.executeButton.classList.add("disabled");
         }
 
-        if (this.robloxRobloxFound) {
+        if (this.isRobloxFound) {
+            if (this.currentState !== "Injecting") {
+                this.injectButton.classList.remove("disabled");
+            }
             this.killButton.classList.remove("disabled")
         } else {
             this.killButton.classList.add("disabled")
+            this.injectButton.classList.add("disabled");
         }
     }
 
@@ -52,14 +57,29 @@ export default class UIManager {
     }
 
     static updateRobloxFound(newValue: boolean) {
-        if (this.robloxRobloxFound == newValue) return;
-        this.robloxRobloxFound = newValue;
+        if (this.isRobloxFound == newValue) return;
+        this.isRobloxFound = newValue;
+
+        if (this.currentState == "Injecting" || this.currentState == "Attached") {
+            this.updateStatus("Idle")
+        }
+
         this.updateButtons();
+    }
+
+    static startRobloxActiveLoop() {
+        setInterval(async () => {
+            const isRobloxRunning: boolean = await invoke("is_roblox_running");
+            if (isRobloxRunning == this.isRobloxFound) return;
+
+            this.updateRobloxFound(isRobloxRunning);
+        }, 500)
     }
 
     static executableReady() {
         this.loginSection.classList.remove("active");
         this.exploitSection.classList.add("active");
         EditorManager.setupEditor();
+        this.startRobloxActiveLoop()
     }
 }
