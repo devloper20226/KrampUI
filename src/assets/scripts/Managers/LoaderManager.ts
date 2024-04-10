@@ -35,18 +35,20 @@ end
         }
     }
 
-    static async findLoader() {
+    static async findLoader(): Promise<boolean> {
         const dataFiles = await FilesystemService.listDirectoryFiles("");
-        if (typeof(dataFiles) == "boolean") { alert("Failed to find loader! (0x1)"); exit(); return }
+        if (typeof(dataFiles) == "boolean") { alert("Failed to find loader! (0x1)"); exit(); return false }
 
         for (const file of dataFiles) {
             if (file.name == "krampus-loader.exe") {
                 this.loaderPath = file.path;
                 this.setupWebsocket();
                 console.log("Found loader: " + this.loaderPath)
-                return;
+                return true;
             }
         }
+
+        return false;
     }
 
     static async clearExecutables() {

@@ -2,7 +2,6 @@ import { event, process } from "@tauri-apps/api";
 import { appWindow } from "@tauri-apps/api/window";
 import SettingsManager from "./Managers/SettingsManager";
 import FilesystemService from "./Services/FilesystemService";
-import CredentialsManager from "./Managers/CredentialsManager";
 
 export async function exit() {
   //TODO: Set unsaved tab data
@@ -27,7 +26,6 @@ document.addEventListener('DOMContentLoaded', async () => {
   }
 
   await SettingsManager.initializeSettings();
-  await CredentialsManager.intializeCredentials();
 
   await initializeComponents();
 

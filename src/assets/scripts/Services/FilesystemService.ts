@@ -47,11 +47,20 @@ export default class FilesystemService {
 
     static async deleteFile(filePath: string) {
         try {
-          await fs.removeFile(filePath, { dir: fs.BaseDirectory.AppConfig });
-          return true;
+            await fs.removeFile(filePath, { dir: fs.BaseDirectory.AppConfig });
+            return true;
         } catch {
-          return false;
+            return false;
         }
-      }
-      
+    }
+    
+    static async renameFile(filePath: string, newPath: string): Promise<boolean> {
+        try {
+            if ((await this.exists(filePath)) === false) return false;
+            await fs.renameFile(filePath, newPath, { dir: fs.BaseDirectory.AppConfig })
+            return true;
+        } catch {
+            return false;
+        }
+    }
 }

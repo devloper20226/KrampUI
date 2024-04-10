@@ -57,7 +57,7 @@ export default class UIManager {
         this.updateButtons();
     }
 
-    static loggedIn() {
+    static executableReady() {
         this.loginSection.classList.remove("active");
         this.exploitSection.classList.add("active");
         EditorManager.setupEditor();
