@@ -61,9 +61,9 @@ fn attempt_login(_window: Window, email: String, password: String) -> (bool, Str
         .send();
 
     return match login_request {
-        Ok(login_response) => match login_response.status().is_success() {
+        Ok(response) => match response.status().is_success() {
             true => {
-                let cookies = match login_response.headers().get("Set-Cookie") {
+                let cookies = match response.headers().get("Set-Cookie") {
                     Some(cookies) => match cookies.to_str() {
                         Ok(cookie_string) => cookie_string,
                         Err(_) => return (false, "Invalid cookies".to_string())
@@ -78,9 +78,9 @@ fn attempt_login(_window: Window, email: String, password: String) -> (bool, Str
                     },
                     None => (false, "Invalid session token".to_string())
                 };
-            }, false => (false, "Invalid credentials".to_string())
+            }, false => (false, format!("{}: Failed to fetch session token", response.status().as_u16()))
         },
-        Err(_) => (false, "Request failed".to_string())
+        Err(_) => (false, "Failed to fetch session token".to_string())
     };
 }
 
@@ -108,14 +108,14 @@ fn get_login_token(_window: Window, session_token: String) -> (bool, String) {
                     .map(|login_token| (true, login_token.to_string()))
                     .unwrap_or((false, "Invalid JSON Response".to_string()));
             },
-            false => (false, "Invalid session token".to_string())
+            false => (false, format!("{}: Failed to fetch token", response.status().as_u16()))
         },
-        Err(_) => (false, "Request failed".to_string())
+        Err(_) => (false, "Failed to fetch token".to_string())
     };
 }
 
 #[command]
-fn download_executable(window: Window, path: &str, token: &str) -> bool {
+fn download_executable(window: Window, path: &str, token: &str) -> (bool, String) {
     let client = Client::new();
     let response = client.get(format!("https://api.acedia.gg/download?product=RO-EXEC&login_token={}", token))
         .timeout(Duration::from_secs(10))
@@ -129,15 +129,15 @@ fn download_executable(window: Window, path: &str, token: &str) -> bool {
 
                 return match File::create(path) {
                     Ok(mut dest) => match copy(&mut response, &mut dest) {
-                        Ok(_) => true,
-                        Err(_) => false
+                        Ok(_) => (true, "Success".to_string()),
+                        Err(_) => (false, "Failed to copy loader".to_string())
                     },
-                    Err(_) => false
+                    Err(_) => (false, "Failed to create loader file".to_string())
                 };
             },
-            false => false
+            false => (false, format!("{}: Failed to download loader", response.status().as_u16()))
         },
-        Err(_) => false
+        Err(_) => (false, "Failed to download loader".to_string())
     };
 }
 

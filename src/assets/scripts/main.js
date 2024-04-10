@@ -121,7 +121,7 @@ async function login() {
   const password = loginPassword.value;
   loginForm.classList.add("disabled");
 
-  /* loginSubmit.innerText = "Fetching session cookie...";
+  loginSubmit.innerText = "Fetching session cookie...";
   const [loginSuccess, loginInfo] = await invoke("attempt_login", { email, password });
   if (!loginSuccess) return handleError(loginInfo);
 
@@ -133,8 +133,8 @@ async function login() {
   const path = await getExecutable();
 
   loginSubmit.innerText = "Downloading loader...";
-  const downloadSuccess = await invoke("download_executable", { path, token: tokenInfo });
-  if (!downloadSuccess) return handleError("Failed to download loader"); */
+  const [downloadSuccess, downloadInfo] = await invoke("download_executable", { path, token: tokenInfo });
+  if (!downloadSuccess) return handleError(downloadInfo);
 
   await setCredentials({ email, password })
   initialize();
