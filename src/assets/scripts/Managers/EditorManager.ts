@@ -110,7 +110,7 @@ export default class EditorManager {
       label: l,
       kind: t,
       detail: d,
-      insertText: i,
+      insertText: i
     });
   }
 
@@ -124,7 +124,6 @@ export default class EditorManager {
         }
       }
     });
-
 
     monaco.editor.defineTheme("dark", {
       base: "vs-dark",
@@ -153,34 +152,8 @@ export default class EditorManager {
       },
     });
 
-    this.editor = monaco.editor.create(this.exploitEditor, {
-      language: "lua",
-      theme: "dark",
-      value: "test",
-      fontFamily: "Fira Code",
-      fontSize: 13,
-      acceptSuggestionOnEnter: "smart",
-      suggestOnTriggerCharacters: true,
-      suggestSelection: "recentlyUsed",
-      folding: true,
-      autoIndent: "keep",
-      scrollBeyondLastLine: true,
-      wordBasedSuggestions: "currentDocument",
-      scrollbar: {
-        verticalHasArrows: true,
-      },
-      minimap: {
-        enabled: false,
-      },
-      showFoldingControls: "always",
-      smoothScrolling: true,
-      contextmenu: true,
-      lineNumbersMinChars: 2,
-    });
-
-    window.onresize = function () {
-      EditorManager.editor?.layout();
-    };
+    let globalWords = [];
+    let keyWords = [];
 
     for (const key of [
       "_G",
@@ -201,7 +174,8 @@ export default class EditorManager {
       "typeof",
       "UserSettings",
     ]) {
-      this.editorAddIntellisense(key, "Keyword", key, key);
+      this.editorAddIntellisense(key, "Variable", key, key);
+      globalWords.push(key)
     }
 
     for (const key of [
@@ -226,8 +200,10 @@ export default class EditorManager {
       "true",
       "until",
       "while",
+      "continue"
     ]) {
-      this.editorAddIntellisense(key, "Variable", key, key);
+      this.editorAddIntellisense(key, "Keyword", key, key);
+      keyWords.push(key);
     }
 
     for (const key of [
@@ -306,6 +282,11 @@ export default class EditorManager {
       "coroutine.status",
       "coroutine.wrap",
       "coroutine.yield",
+      "hookmetamethod",
+      "hookfunction",
+      "getupvalues",
+      "getconstants",
+      "getsenv",
     ]) {
       this.editorAddIntellisense(key, "Method", key, key);
     }
@@ -410,6 +391,7 @@ export default class EditorManager {
         key,
         key.includes(":") ? key.substring(1, key.length) : key
       );
+      globalWords.push(key)
     }
 
     for (const key of [
@@ -444,6 +426,45 @@ export default class EditorManager {
         key
       );
     }
+
+    monaco.languages.setMonarchTokensProvider('lua', {
+      tokenizer: {
+        root: [
+          [new RegExp(`\\b(${globalWords.join('|')})\\b`, 'g'), "global"],
+          [new RegExp(`\\b(${keyWords.join('|')})\\b`, 'g'), "keyword"]
+        ]
+      }
+    })
+
+    this.editor = monaco.editor.create(this.exploitEditor, {
+      language: "lua",
+      theme: "dark",
+      value: "test",
+      fontFamily: "Fira Code",
+      fontSize: 13,
+      acceptSuggestionOnEnter: "smart",
+      suggestOnTriggerCharacters: true,
+      suggestSelection: "recentlyUsed",
+      folding: true,
+      autoIndent: "keep",
+      scrollBeyondLastLine: true,
+      wordBasedSuggestions: "currentDocument",
+      scrollbar: {
+        verticalHasArrows: true,
+      },
+      minimap: {
+        enabled: false,
+      },
+      showFoldingControls: "always",
+      smoothScrolling: true,
+      contextmenu: true,
+      lineNumbersMinChars: 2,
+    });
+
+    window.onresize = function () {
+      EditorManager.editor?.layout();
+    };
+
 
     this.editor.onDidChangeModelContent(function () {
       EditorManager.updateIntelliSense();
