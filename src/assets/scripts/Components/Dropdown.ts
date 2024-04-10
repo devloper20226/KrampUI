@@ -24,7 +24,7 @@ export default () => {
             foundDropdownContent.classList.remove("active");
         } else if (foundDropdownContent) {
             const shouldToggle = (button === "left" && foundDropdown?.classList.contains("left")) || (button === "right" && !foundDropdown?.classList.contains("left"));
-            foundDropdownContent.classList.toggle("active", shouldToggle);
+            if (shouldToggle) foundDropdownContent.classList.toggle("active");
 
             if (foundDropdownContent.classList.contains("active")) {
                 const offsetX = Math.min(event.clientX, window.innerWidth - foundDropdownContent.offsetWidth - 10);
