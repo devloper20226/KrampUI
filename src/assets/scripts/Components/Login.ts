@@ -2,6 +2,7 @@ import { invoke } from "@tauri-apps/api";
 import CredentialsManager from "../Managers/CredentialsManager";
 import SettingsManager from "../Managers/SettingsManager";
 import LoaderManager from "../Managers/LoaderManager";
+import UIManager from "../Managers/UIManager";
 
 export default async () => {
     const loginEmail = document.querySelector(".kr-input.email") as HTMLInputElement;
@@ -43,7 +44,7 @@ export default async () => {
 
         loginButton.innerText = "Sucessfully logged in!";
         await CredentialsManager.updateCredentials(email, password);
-        //TODO: Call on UIManager.loggedIn()
+        UIManager.loggedIn();
 
         return true;
     }
@@ -52,7 +53,7 @@ export default async () => {
         if (CredentialsManager.currentCredentials.email !== "" && CredentialsManager.currentCredentials.password !== "") {
             loginEmail.value = CredentialsManager.currentCredentials.email;
             loginPassword.value = CredentialsManager.currentCredentials.password;
-            if ((await login()) === true) { console.log("autologin"); return; };
+            if ((await login()) === true) return;
         }
     }
 
