@@ -13,7 +13,8 @@ export default async () => {
     }
 
     async function chooseExecutable() {
-        alert("Once you select your krampus loader, it will be moved to %appdata%/KrampUI!")
+        alert("Once you select your krampus loader, it will be moved to %appdata%/KrampUI!");
+        
         const selectedFile = await dialog.open({
             title: "Select krampus loader",
             defaultPath: await path.downloadDir(),

@@ -18,6 +18,12 @@ export default class SettingsManager {
 
     static async initializeSettings() {
         if (this.currentSettings !== null) return;
+
+        function abort() {
+            alert("Failed to initialize Settings manager! (0x2)");
+            exit();
+        }
+
         const doesDataFolderExist = await FilesystemService.exists("data");
 
         const defaultSettings: UISettings = {
@@ -44,13 +50,16 @@ export default class SettingsManager {
         }
 
         const settingsFileContent = await FilesystemService.readFile("data/settings.json");
-        if (typeof(settingsFileContent) == "boolean") { alert("Failed to initialize Settings manager! (0x2)"); exit(); return };
+
+        if (typeof(settingsFileContent) == "boolean") {
+            return abort();
+        };
 
         let parsedJson;
         try {
             parsedJson = JSON.parse(settingsFileContent);
         } catch {
-            return;
+            return abort();
         }
 
         this.currentSettings = parsedJson;

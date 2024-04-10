@@ -2,7 +2,6 @@ import { fs } from "@tauri-apps/api";
 import { FileEntry } from "@tauri-apps/api/fs";
 
 export default class FilesystemService {
-
     static async writeFile(filePath: string, content: string): Promise<boolean> {
         try {
             await fs.writeTextFile(filePath, content, { dir: fs.BaseDirectory.AppConfig })

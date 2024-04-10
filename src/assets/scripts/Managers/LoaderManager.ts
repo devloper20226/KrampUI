@@ -36,8 +36,17 @@ end
     }
 
     static async findLoader(): Promise<boolean> {
+        function abort() {
+            alert("Failed to find loader! (0x1)");
+            exit();
+        }
+
         const dataFiles = await FilesystemService.listDirectoryFiles("");
-        if (typeof(dataFiles) == "boolean") { alert("Failed to find loader! (0x1)"); exit(); return false }
+
+        if (typeof(dataFiles) == "boolean") {
+            abort();
+            return false;
+        }
 
         for (const file of dataFiles) {
             if (file.name == "krampus-loader.exe") {
@@ -52,8 +61,16 @@ end
     }
 
     static async clearExecutables() {
+        function abort() {
+            alert("Failed to clear executables! (0x3)");
+            exit();
+        }
+
         const dataFiles = await FilesystemService.listDirectoryFiles("");
-        if (typeof(dataFiles) == "boolean") { alert("Failed to clear executables! (0x2)"); exit(); return }
+
+        if (typeof(dataFiles) == "boolean") {
+            return abort();
+        }
 
         for (const file of dataFiles) {
             if (file.name == "krampus-loader.exe") {
