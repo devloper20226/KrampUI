@@ -3,7 +3,6 @@ import SettingsManager from "../Managers/SettingsManager";
 export default async () => {
     const settingsMap: Record<string, string> = {
         keyToggle: ".kr-dropdown-key-toggle",
-        autoLogin: ".kr-dropdown-auto-login",
         autoInject: ".kr-dropdown-auto-inject",
         topMost: ".kr-dropdown-top-most"
     };

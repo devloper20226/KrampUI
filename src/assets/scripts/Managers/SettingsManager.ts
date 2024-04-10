@@ -2,7 +2,6 @@ import FilesystemService from "../Services/FilesystemService";
 import { exit } from "../main";
 
 export type UISettings = {
-    autoLogin: boolean,
     autoInject: boolean,
     topMost: boolean,
     keyToggle: boolean,
@@ -22,7 +21,6 @@ export default class SettingsManager {
         const doesDataFolderExist = await FilesystemService.exists("data");
 
         const defaultSettings: UISettings = {
-            autoLogin: true,
             autoInject: false,
             topMost: true,
             keyToggle: false
