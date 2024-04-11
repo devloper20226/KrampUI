@@ -291,7 +291,7 @@ body > .container > *:not(.active):not(.kr-titlebar) {
 }
 
 .exploit > .main > * {
-  height: calc(100vh - 28px - 22px - 27px);
+  height: calc(100vh - 28px - 22px - 28px);
   border: 1px solid var(--lighter);
   border-radius: 2.5px;
   box-sizing: border-box;
@@ -299,11 +299,11 @@ body > .container > *:not(.active):not(.kr-titlebar) {
 
 @media only screen and (max-width: 600px) {
   .exploit .bar .buttons .kr-button .text {
-      display: none !important;
+    display: none !important;
   }
 
   .exploit > .main > * {
-      height: calc(100vh - 25px - 22px - 27px) !important;
+    height: calc(100vh - 25px - 22px - 28px) !important;
   }
 }
 
