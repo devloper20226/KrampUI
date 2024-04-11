@@ -46,7 +46,6 @@ export default class LoaderManager {
     private static async setupWebsocketListener() {
         event.listen("update", function(event) {
             const isConnected: boolean = (event.payload as any).message || false;
-            console.log("Got update: " + isConnected)
 
             if (UIManager.websocketConnected == isConnected) return;
 

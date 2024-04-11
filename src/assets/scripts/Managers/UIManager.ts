@@ -30,6 +30,8 @@ export default class UIManager {
         if (this.currentState == "Attached") {
             if (this.websocketConnected == true) {
                 this.executeButton.classList.remove("disabled");
+            } else {
+                this.executeButton.classList.add("disabled");
             }
         } else {
             this.injectButton.classList.add("disabled");

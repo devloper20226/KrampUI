@@ -7,6 +7,7 @@ export default async function () {
     const injectButton = document.querySelector(".kr-inject") as HTMLElement;
     const killRobloxButton = document.querySelector(".kr-kill") as HTMLElement;
     const clearButton = document.querySelector(".kr-clear") as HTMLElement;
+    const executeButton = document.querySelector(".kr-execute") as HTMLElement;
 
     injectButton.addEventListener("click", async function () {
         UIManager.updateStatus("Injecting")
@@ -28,4 +29,8 @@ export default async function () {
         EditorManager.setEditorText("", true);
         EditorManager.setEditorScroll(0);
     });
+
+    executeButton.addEventListener("click", async () => {
+        await invoke("execute_script", { text: EditorManager.getEditorText() })
+    })
 }
