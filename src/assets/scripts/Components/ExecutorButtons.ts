@@ -1,6 +1,7 @@
 import { invoke } from "@tauri-apps/api";
 import UIManager from "../Managers/UIManager";
 import LoaderManager from "../Managers/LoaderManager";
+import EditorManager from "../Managers/EditorManager";
 
 export default async function () {
     const injectButton = document.querySelector(".kr-inject") as HTMLElement;
