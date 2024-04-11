@@ -3,9 +3,11 @@ import { appWindow } from "@tauri-apps/api/window";
 import SettingsManager from "./Managers/SettingsManager";
 import FilesystemService from "./Services/FilesystemService";
 import TabsManager from "./Managers/TabsManager";
+import EditorManager from "./Managers/EditorManager";
+import UIManager from "./Managers/UIManager";
 
 export async function exit() {
-  // TODO: Set unsaved tab data
+  await TabsManager.saveUnsavedTabs();
   await process.exit();
 }
 
@@ -25,8 +27,10 @@ document.addEventListener('DOMContentLoaded', async function () {
     await FilesystemService.createDirectory("");
   }
 
+  await UIManager.startRobloxActiveLoop();
   await SettingsManager.initializeSettings();
   await TabsManager.initializeTabs();
+  await EditorManager.setupEditor();
   await initializeComponents();
 
   await appWindow.show();

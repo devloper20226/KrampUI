@@ -31,7 +31,6 @@ export type Tab = ScriptTab | FileTab;
 export type Tabs = Tab[];
 export type UnsavedTabs = UnsavedTab[];
 
-// TODO: finish off
 export default class TabsManager {
     private static tabs: Tabs | null = null;
     private static unsavedTabs: UnsavedTabs | null = null;
@@ -116,8 +115,7 @@ export default class TabsManager {
 
     private static async checkTabs() {
         if (this.tabs?.length === 0) {
-            const tab = await this.addNewTab();
-            await this.setActiveTab(tab);
+            await this.addNewTab();
         }
     }
 
@@ -147,7 +145,7 @@ export default class TabsManager {
     static async addTab(tab: Tab): Promise<Tab> {
         const savedTab = this.tabs?.push(tab);
         await this.saveTabs();
-        return this.tabs && savedTab ? this.tabs[savedTab] : tab;
+        return this.tabs && savedTab ? this.tabs[savedTab - 1] : tab;
     }
 
     static async removeTabFiles(tab: Tab) {
@@ -257,7 +255,7 @@ export default class TabsManager {
             const content = await this.getTabContent(tab);
             const scroll = this.getTabScroll(tab);
 
-            if (content) EditorManager.setEditorText(content, false);
+            if (content) EditorManager.setEditorText(content);
             EditorManager.setEditorScroll(scroll);
         }
     }
@@ -351,7 +349,6 @@ export default class TabsManager {
 
     static async addUnsavedTab(tab: UnsavedTab) {
         this.unsavedTabs?.push(tab);
-        await this.saveUnsavedTabs();
     }
 
     static async removeUnsavedTab(tab: UnsavedTab) {
@@ -359,7 +356,6 @@ export default class TabsManager {
 
         if (index) {
             this.unsavedTabs?.splice(index, 1);
-            await this.saveUnsavedTabs();
         }
     }
 
@@ -370,8 +366,6 @@ export default class TabsManager {
                     const index = this.unsavedTabs?.findIndex((t) => t.id === tab.id);
                     if (index) this.unsavedTabs?.splice(index, 1);
                 }
-    
-                await this.saveUnsavedTabs();
             }
         }
     }
@@ -381,7 +375,7 @@ export default class TabsManager {
         await FilesystemService.writeFile("data/tabs.json", JSON.stringify(this.tabs, null, 2));
     }
 
-    private static async saveUnsavedTabs() {
+    static async saveUnsavedTabs() {
         await FilesystemService.writeFile("data/unsaved-tabs.json", JSON.stringify(this.unsavedTabs, null, 2));
     }
 };

@@ -1,6 +1,5 @@
 
 import { invoke } from '@tauri-apps/api';
-import EditorManager from './EditorManager';
 export type UIState = "Attached" | "Injecting" | "Idle"
 
 export default class UIManager {
@@ -11,9 +10,6 @@ export default class UIManager {
     private static injectButton = document.querySelector(".kr-inject") as HTMLElement;
     private static executeButton = document.querySelector(".kr-execute") as HTMLElement;
     private static killButton = document.querySelector(".kr-kill") as HTMLElement;
-
-    private static loginSection = document.querySelector("body > .container > .login") as HTMLElement;
-    private static exploitSection = document.querySelector("body > .container > .exploit") as HTMLElement;
 
     private static updateIndicator() {
         switch (this.currentState) {
@@ -74,12 +70,5 @@ export default class UIManager {
 
             this.updateRobloxFound(isRobloxRunning);
         }, 500);
-    }
-
-    static executableReady() {
-        this.loginSection.classList.remove("active");
-        this.exploitSection.classList.add("active");
-        EditorManager.setupEditor();
-        this.startRobloxActiveLoop()
     }
 }

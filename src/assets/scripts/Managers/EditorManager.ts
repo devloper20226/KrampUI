@@ -1,4 +1,5 @@
 import * as monaco from "monaco-editor";
+import TabsManager from "./TabsManager";
 
 export default class EditorManager {
   static editor: monaco.editor.IStandaloneCodeEditor | null = null;
@@ -140,7 +141,7 @@ export default class EditorManager {
     });
   }
 
-  static setupEditor() {
+  static async setupEditor() {
     if (this.editor !== null) return;
 
     monaco.languages.registerCompletionItemProvider("lua", {
@@ -515,7 +516,7 @@ export default class EditorManager {
     this.editor = monaco.editor.create(this.exploitEditor, {
       language: "lua",
       theme: "dark",
-      value: "test",
+      value: await TabsManager.getActiveTabContent(),
       fontFamily: "Fira Code",
       fontSize: 13,
       acceptSuggestionOnEnter: "smart",
@@ -537,18 +538,20 @@ export default class EditorManager {
       lineNumbersMinChars: 2,
     });
 
+    this.setEditorScroll(await TabsManager.getActiveTabScroll());
+
     window.onresize = function () {
       EditorManager.editor?.layout();
     };
 
 
-    this.editor.onDidChangeModelContent(function () {
+    this.editor.onDidChangeModelContent(async function () {
       EditorManager.updateIntelliSense();
-      //setActiveTabContent(editorGetText());
+      await TabsManager.setActiveTabContent(EditorManager.getEditorText());
     });
 
-    this.editor.onDidScrollChange(function (_e) {
-      //setActiveTabScroll(e.scrollTop);
+    this.editor.onDidScrollChange(async function (e) {
+      await TabsManager.setActiveTabScroll(e.scrollTop);
     });
 
     this.editor.addCommand(
@@ -576,7 +579,7 @@ export default class EditorManager {
     return this.editor.getValue();
   }
 
-  static setEditorText(newText: string, preserveUndo: boolean) {
+  static setEditorText(newText: string, preserveUndo: boolean = false) {
     if (this.editor === null) return;
     const model = this.editor.getModel() as monaco.editor.ITextModel;
     const range = model.getFullModelRange();
