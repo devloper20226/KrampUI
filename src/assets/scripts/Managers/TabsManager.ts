@@ -1,18 +1,19 @@
 import FilesystemService from "../Services/FilesystemService";
+import randomString from "../Functions/RandomString";
 import { exit } from "../main";
 
 export type ScriptTab = {
     id: string,
-    name: string,
     order: number,
+    name: string,
     active: boolean,
     scroll: number
 };
 
 export type FileTab = {
     id: string,
-    path: string,
     order: number,
+    path: string,
     active: boolean,
     scroll: number
 };
@@ -23,13 +24,14 @@ export type UnsavedTab = {
     scroll: number
 };
 
-export type Tabs = (ScriptTab | FileTab)[];
+export type Tab = ScriptTab | FileTab;
+export type Tabs = Tab[];
 export type UnsavedTabs = UnsavedTab[];
 
 // TODO: finish off
 export default class TabsManager {
-    static tabs: Tabs | null = null;
-    static unsavedTabs: UnsavedTabs | null = null;
+    private static tabs: Tabs | null = null;
+    private static unsavedTabs: UnsavedTabs | null = null;
 
     private static announceTabsInitialized() {
         console.log("Tabs initialized!");
@@ -83,21 +85,65 @@ export default class TabsManager {
 
         this.tabs = tabs;
         this.unsavedTabs = unsavedTabs;
+        await this.clearUnsavedTabs();
+        await this.checkTabs();
         this.announceTabsInitialized();
     }
 
-    // TODO: use this function for other stuff
-    static isFileTab(tab: ScriptTab | FileTab): tab is FileTab {
+    static getTabId(): string {
+        return randomString(20);
+    }
+
+    static getTabs(): Tabs | null {
+        return this.tabs;
+    }
+
+    static getNextOrder(): number {
+        const orders = this.tabs?.map((t) => t.order);
+
+        if (!orders || orders.length === 0) return 1;
+        let largest = orders[0];
+        
+        for (var i = 0; i < orders.length; i++) {
+            if (orders[i] > largest) largest = orders[i];
+        }
+        
+        return largest + 1;
+    }
+
+    static async checkTabs() {
+        if (this.tabs?.length === 0) {
+            const defaultTab: ScriptTab = {
+                id: this.getTabId(),
+                order: this.getNextOrder(),
+                name: "Script",
+                active: true,
+                scroll: 0
+            };
+
+            await this.addTab(defaultTab);
+        }
+    }
+
+    static isFileTab(tab: Tab): tab is FileTab {
         return (tab as FileTab).path !== undefined;
     }
     
+    static getActiveTab(): Tab | null {
+        return this.tabs?.find((t) => t.active) || null;
+    }
 
-    static async addTab(tab: ScriptTab | FileTab) {
+    static getActiveUnsavedTab(): UnsavedTab | null {
+        const activeTab = this.getActiveTab();
+        return this.unsavedTabs?.find((t) => t.id === activeTab?.id) || null;
+    }
+
+    static async addTab(tab: Tab) {
         this.tabs?.push(tab);
         await this.saveTabs();
     }
 
-    static async removeTab(tab: ScriptTab | FileTab) {
+    static async removeTab(tab: Tab) {
         const index = this.tabs?.findIndex((t) => t.id === tab.id);
 
         if (index) {
@@ -117,6 +163,19 @@ export default class TabsManager {
         if (index) {
             this.unsavedTabs?.splice(index, 1);
             await this.saveUnsavedTabs();
+        }
+    }
+
+    private static async clearUnsavedTabs() {
+        if (this.unsavedTabs) {
+            for (const tab of this.unsavedTabs) {
+                if (!this.tabs?.find((t) => t.id === tab.id)) {
+                    const index = this.unsavedTabs?.findIndex((t) => t.id === tab.id);
+                    if (index) this.unsavedTabs?.splice(index, 1);
+                }
+    
+                await this.saveUnsavedTabs();
+            }
         }
     }
 
