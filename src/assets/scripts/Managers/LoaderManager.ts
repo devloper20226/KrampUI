@@ -2,6 +2,7 @@ import { Child, Command } from "@tauri-apps/api/shell";
 import FilesystemService from "../Services/FilesystemService";
 import { exit } from "../main";
 import { path } from "@tauri-apps/api";
+import UIManager from "./UIManager";
 
 export type InjectionResult = {
     success: boolean,
@@ -46,7 +47,8 @@ export default class LoaderManager {
         return new Promise(async (resolve) => {
             const loaderCommand = new Command("cmd", ["/c", "start", "/b", "/wait", "krampus-loader.exe"], { cwd: await path.appConfigDir() });
             let loaderChild: Child;
-    
+            let robloxKillCheck: number;
+
             function onOutput(line: string) {
                 line = line.trim();
                 const errors = ["error:", "redownload", "create a ticket", "make a ticket", "cannot find user", "mismatch", "out of date", "failed to", "no active subscription"];
@@ -66,15 +68,25 @@ export default class LoaderManager {
             });
     
             loaderCommand.stdout.on("data", onOutput);
+            loaderCommand.stderr.on("data", onOutput);
     
             try {
                 loaderChild = await loaderCommand.spawn();
             } catch (error) {
-                resolve({ success: false, error: "Failed to start injector!" });
+                resolve({ success: false, error: "Failed to start injector! Check whether the loader is present!" });
             }
     
+            robloxKillCheck = setInterval(async () => {
+                if (UIManager.isRobloxFound == false) {
+                    UIManager.updateStatus("Idle");
+                    await loaderChild.kill();
+                    resolve({ success: false, error: "Roblox was closed while injecting" })
+                }
+            }, 501)
+
             setTimeout(async () => {
                 await loaderChild.kill();
+                clearInterval(robloxKillCheck);
             }, 10000);
         });
     }
