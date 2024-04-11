@@ -1,8 +1,8 @@
 import { Child, Command } from "@tauri-apps/api/shell";
 import FilesystemService from "../Services/FilesystemService";
-import { exit } from "../main";
 import { path } from "@tauri-apps/api";
 import UIManager from "./UIManager";
+import WindowManager from "./WindowManager";
 
 export type InjectionResult = {
     success: boolean,
@@ -76,7 +76,7 @@ export default class LoaderManager {
                 resolve({ success: false, error: "Failed to start injector! Check whether the loader is present!" });
             }
     
-            robloxKillCheck = setInterval(async () => {
+            robloxKillCheck = setInterval(async function () {
                 if (UIManager.isRobloxFound == false) {
                     UIManager.updateStatus("Idle");
                     await loaderChild.kill();
@@ -94,7 +94,7 @@ export default class LoaderManager {
     static async findLoader(): Promise<boolean> {
         function abort() {
             alert("Failed to find loader! (0x1)");
-            exit();
+            WindowManager.exit();
         }
 
         const dataFiles = await FilesystemService.listDirectoryFiles("");
@@ -119,7 +119,7 @@ export default class LoaderManager {
     static async clearExecutables() {
         function abort() {
             alert("Failed to clear executables! (0x3)");
-            exit();
+            WindowManager.exit();
         }
 
         const dataFiles = await FilesystemService.listDirectoryFiles("");

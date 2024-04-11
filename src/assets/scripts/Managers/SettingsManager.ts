@@ -1,5 +1,5 @@
 import FilesystemService from "../Services/FilesystemService";
-import { exit } from "../main";
+import WindowManager from "./WindowManager";
 
 export type UISettings = {
     autoInject: boolean,
@@ -16,7 +16,7 @@ export default class SettingsManager {
 
         function abort() {
             alert("Failed to initialize Settings manager! (0x2)");
-            exit();
+            WindowManager.exit();
         }
 
         const doesDataFolderExist = await FilesystemService.exists("data");
