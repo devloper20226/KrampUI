@@ -5,6 +5,7 @@ import LoaderManager from "../Managers/LoaderManager";
 export default async function () {
     const injectButton = document.querySelector(".kr-inject") as HTMLElement;
     const killRobloxButton = document.querySelector(".kr-kill") as HTMLElement;
+    const clearButton = document.querySelector(".kr-clear") as HTMLElement;
 
     injectButton.addEventListener("click", async () => {
         UIManager.updateStatus("Injecting")
@@ -20,5 +21,10 @@ export default async function () {
 
     killRobloxButton.addEventListener("click", async function () {
         await invoke("kill_roblox");
-    })
+    });
+
+    clearButton.addEventListener("click", function () {
+        EditorManager.setEditorText("", true);
+        EditorManager.setEditorScroll(0);
+    });
 }

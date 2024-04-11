@@ -12,5 +12,5 @@ export default async function () {
     exitButton.addEventListener("click", exit);
     helpButton.addEventListener("click", () => {
         open("https://www.youtube.com/watch?v=dQw4w9WgXcQ")
-    })
+    });
 }

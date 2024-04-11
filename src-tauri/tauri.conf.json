@@ -7,8 +7,7 @@
     "withGlobalTauri": true
   },
   "package": {
-    "productName": "KrampUI",
-    "version": "0.0.0"
+    "productName": "KrampUI"
   },
   "tauri": {
     "allowlist": {
@@ -43,7 +42,7 @@
     "bundle": {
       "active": true,
       "targets": "all",
-      "identifier": "KrampUI-REWRITE",
+      "identifier": "KrampUI-Rewrite",
       "publisher": "BitdancerStudios",
       "category": "Utility",
       "copyright": "Copyright @ 2024 BitdancerStudios",
