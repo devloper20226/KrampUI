@@ -592,4 +592,9 @@ export default class EditorManager {
       endColumn: 1,
     });
   }
+
+  static setEditorScroll(scroll: number) {
+    if (this.editor === null) return;
+    this.editor.setScrollTop(scroll);
+  }
 }
