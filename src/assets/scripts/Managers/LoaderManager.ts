@@ -3,6 +3,11 @@ import FilesystemService from "../Services/FilesystemService";
 import { exit } from "../main";
 import { path } from "@tauri-apps/api";
 
+export type InjectionResult = {
+    success: boolean,
+    error: string
+}
+
 export default class LoaderManager {
     static loaderPath: string | null = null;
     static wsPort: number = 54349;
@@ -37,32 +42,41 @@ export default class LoaderManager {
         }
     }
 
-    static async inject() {
-        const loaderCommand = new Command("cmd", ["/c", "start", "/b", "/wait", "krampus-loader.exe"], { cwd: await path.appConfigDir() });
-
-        let injectionCompleted = false;
-        let loaderChild: Child;
-        let robloxCheck;
-
-        function onOutput(line: string) {
-            line = line ? line.trim() : "";
-            console.log(line);
-        }
-
-        loaderCommand.on("error", () => {
-            console.log("Unexpected error!");
-        })
-
-        loaderCommand.stdout.on("data", onOutput);
-
-        try {
-            loaderChild = await loaderCommand.spawn();
-            console.log("Started")
-        } catch {
-
-        }
-        
-    }   
+    static async inject(): Promise<InjectionResult> {
+        return new Promise(async (resolve) => {
+            const loaderCommand = new Command("cmd", ["/c", "start", "/b", "/wait", "krampus-loader.exe"], { cwd: await path.appConfigDir() });
+            let loaderChild: Child;
+    
+            function onOutput(line: string) {
+                line = line.trim().toLowerCase();
+                const errors = ["error:", "redownload", "create a ticket", "make a ticket", "cannot find user", "mismatch", "out of date", "failed to", "no active subscription"];
+    
+                if (errors.some(s => line.includes(s)) && !line.endsWith(":")) {
+                    resolve({ success: false, error: line });
+                } else if (line.includes("success")) {
+                    resolve({ success: true, error: "" });
+                }
+            }
+    
+            loaderCommand.on("error", (err) => {
+                console.error("Unexpected error!", err);
+                resolve({ success: false, error: "Unexpected error" });
+            });
+    
+            loaderCommand.stdout.on("data", onOutput);
+    
+            try {
+                loaderChild = await loaderCommand.spawn();
+                console.log("Started");
+            } catch (error) {
+                resolve({ success: false, error: "Failed to start injector!" });
+            }
+    
+            setTimeout(async () => {
+                await loaderChild.kill();
+            }, 10000);
+        });
+    }
 
     static async findLoader(): Promise<boolean> {
         function abort() {

@@ -8,7 +8,14 @@ export default async function () {
 
     injectButton.addEventListener("click", async () => {
         UIManager.updateStatus("Injecting")
-        LoaderManager.inject();
+        const { success, error } = await LoaderManager.inject();
+
+        if (success) {
+            UIManager.updateStatus("Attached")
+        } else {
+            UIManager.updateStatus("Idle")
+            alert(`[KRAMPUS] ${error}`)
+        }
     })
 
     killRobloxButton.addEventListener("click", async function () {
