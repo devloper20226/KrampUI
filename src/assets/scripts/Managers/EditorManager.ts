@@ -358,7 +358,8 @@ export default class EditorManager {
       "invalidate",
       "iscached",
       "replace",
-      "compareinstances"
+      "compareinstances",
+      "task.wait"
     ]) {
       this.editorAddIntellisense(key, "Method", key, key);
       globalWords.push(key);
