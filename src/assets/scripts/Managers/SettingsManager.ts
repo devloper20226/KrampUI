@@ -11,11 +11,6 @@ export type UISettings = {
 export default class SettingsManager {
     static currentSettings: UISettings | null = null
 
-    private static announceSettingsInitialized() {
-        console.log("Settings initialized!");
-        console.log(this.currentSettings);
-    }
-
     static async initializeSettings() {
         if (this.currentSettings !== null) return;
 
@@ -36,7 +31,6 @@ export default class SettingsManager {
             await FilesystemService.createDirectory("data")
             await FilesystemService.writeFile("data/settings.json", JSON.stringify(defaultSettings, null, 2));
             this.currentSettings = defaultSettings;
-            this.announceSettingsInitialized();
             return;
         }
 
@@ -45,7 +39,6 @@ export default class SettingsManager {
         if (!settingsFileExists) {
             await FilesystemService.writeFile("data/settings.json", JSON.stringify(defaultSettings, null, 2));
             this.currentSettings = defaultSettings;
-            this.announceSettingsInitialized();
             return;
         }
 
@@ -64,7 +57,6 @@ export default class SettingsManager {
         }
 
         this.currentSettings = settings;
-        this.announceSettingsInitialized();
     }
 
     private static async saveSettings() {

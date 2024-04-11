@@ -5,6 +5,7 @@ import FilesystemService from "./Services/FilesystemService";
 import TabsManager from "./Managers/TabsManager";
 import EditorManager from "./Managers/EditorManager";
 import UIManager from "./Managers/UIManager";
+import { TabsUIManager } from "./Managers/TabsUIManager";
 
 export async function exit() {
   await TabsManager.saveUnsavedTabs();
@@ -29,9 +30,10 @@ document.addEventListener("DOMContentLoaded", async function () {
 
   await UIManager.startRobloxActiveLoop();
   await SettingsManager.initializeSettings();
-  await TabsManager.initializeTabs();
   await EditorManager.setupEditor();
+  await TabsManager.initializeTabs();
   await initializeComponents();
+  TabsUIManager.populateTabs();
 
   await appWindow.show();
   await appWindow.setFocus();

@@ -35,12 +35,6 @@ export default class TabsManager {
     private static tabs: Tabs | null = null;
     private static unsavedTabs: UnsavedTabs | null = null;
 
-    private static announceTabsInitialized() {
-        console.log("Tabs initialized!");
-        console.log(this.tabs);
-        console.log(this.unsavedTabs);
-    }
-
     static async initializeTabs() {
         if (this.tabs !== null) return;
 
@@ -89,7 +83,6 @@ export default class TabsManager {
         this.unsavedTabs = unsavedTabs;
         await this.clearUnsavedTabs();
         await this.checkTabs();
-        this.announceTabsInitialized();
     }
 
     static getTabs(): Tabs | null {
@@ -98,6 +91,11 @@ export default class TabsManager {
 
     private static getTabId(): string {
         return randomString(20);
+    }
+
+    static isUnsaved(tab: Tab): boolean {
+        const unsavedTab = this.unsavedTabs?.find((t) => t.id === tab.id);
+        return unsavedTab ? true : false;
     }
 
     private static getNextOrder(): number {
