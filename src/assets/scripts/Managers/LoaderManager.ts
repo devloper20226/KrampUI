@@ -48,12 +48,12 @@ export default class LoaderManager {
             let loaderChild: Child;
     
             function onOutput(line: string) {
-                line = line.trim().toLowerCase();
+                line = line.trim();
                 const errors = ["error:", "redownload", "create a ticket", "make a ticket", "cannot find user", "mismatch", "out of date", "failed to", "no active subscription"];
     
-                if (errors.some(s => line.includes(s)) && !line.endsWith(":")) {
+                if (errors.some(s => line.toLowerCase().includes(s)) && !line.endsWith(":")) {
                     resolve({ success: false, error: line });
-                } else if (line.includes("success")) {
+                } else if (line.toLowerCase().includes("success")) {
                     resolve({ success: true, error: "" });
                 }
             }
@@ -67,7 +67,6 @@ export default class LoaderManager {
     
             try {
                 loaderChild = await loaderCommand.spawn();
-                console.log("Started");
             } catch (error) {
                 resolve({ success: false, error: "Failed to start injector!" });
             }
