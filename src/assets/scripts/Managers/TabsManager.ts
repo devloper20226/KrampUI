@@ -150,7 +150,7 @@ export default class TabsManager {
 
     static async removeTabFiles(tab: Tab) {
         if (this.isFileTab(tab)) {
-            await FilesystemService.deleteFile(tab.path);
+            await FilesystemService.deleteFile(tab.path, true);
         } else {
             await FilesystemService.deleteFile(`data/tabs/${tab.id}.lua`);
         }
@@ -173,7 +173,7 @@ export default class TabsManager {
 
     static async setTabContent(tab: Tab, content: string) {
         if (this.isFileTab(tab)) {
-            await FilesystemService.writeFile(tab.path, content);
+            await FilesystemService.writeFile(tab.path, content, true);
         } else {
             await FilesystemService.writeFile(`data/tabs/${tab.id}.lua`, content);
         }

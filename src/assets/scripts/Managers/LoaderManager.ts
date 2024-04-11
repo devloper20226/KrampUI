@@ -86,7 +86,7 @@ export default class LoaderManager {
                 resolve({ success: false, error: "Failed to start injector! Check whether the loader is present!" });
             }
     
-            robloxKillCheck = setInterval(async function () {
+            robloxKillCheck = setInterval(async () => {
                 if (UIManager.isRobloxFound == false) {
                     UIManager.updateStatus("Idle");
                     await loaderChild.kill();

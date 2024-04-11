@@ -1,14 +1,14 @@
-import { fs } from "@tauri-apps/api";
+import { fs, invoke, path } from "@tauri-apps/api";
 import { FileEntry } from "@tauri-apps/api/fs";
 
 export default class FilesystemService {
-    static async writeFile(filePath: string, content: string): Promise<boolean> {
-        try {
-            await fs.writeTextFile(filePath, content, { dir: fs.BaseDirectory.AppConfig })
-            return true;
-        } catch {
-            return false;
-        }
+    static async appDirectory(): Promise<string> {
+        return await path.appConfigDir();
+    }
+
+    static async writeFile(file: string, contents: string, absolute: boolean = false): Promise<boolean> {
+        const _path: string = absolute ? file : await path.join(await this.appDirectory(), file);
+        return await invoke("write_file", { path: _path, data: contents });
     }
 
     static async readFile(filePath: string): Promise<string | boolean> {
@@ -27,13 +27,9 @@ export default class FilesystemService {
         }
     }
 
-    static async createDirectory(dirPath: string, recursive: boolean = false): Promise<boolean> {
-        try {
-            await fs.createDir(dirPath, { dir: fs.BaseDirectory.AppConfig, recursive })
-            return true;
-        } catch (err) {
-            return false;
-        }
+    static async createDirectory(directory: string, absolute: boolean = false): Promise<boolean> {
+        const _path: string = absolute ? directory : await path.join(await this.appDirectory(), directory);
+        return await invoke("create_directory", { path: _path });
     }
 
     static async exists(path: string): Promise<boolean> {
@@ -44,13 +40,14 @@ export default class FilesystemService {
         }
     }
 
-    static async deleteFile(filePath: string) {
-        try {
-            await fs.removeFile(filePath, { dir: fs.BaseDirectory.AppConfig });
-            return true;
-        } catch {
-            return false;
-        }
+    static async deleteDirectory(directory: string, absolute: boolean = false): Promise<boolean> {
+        const _path: string = absolute ? directory : await path.join(await this.appDirectory(), directory);
+        return await invoke("delete_directory", { path: _path });
+    }
+
+    static async deleteFile(file: string, absolute: boolean = false): Promise<boolean> {
+        const _path: string = absolute ? file : await path.join(await this.appDirectory(), file);
+        return await invoke("delete_file", { path: _path });
     }
     
     static async renameFile(filePath: string, newPath: string): Promise<boolean> {
