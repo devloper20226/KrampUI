@@ -1,5 +1,12 @@
+import { Child, Command } from "@tauri-apps/api/shell";
 import FilesystemService from "../Services/FilesystemService";
 import { exit } from "../main";
+import { path } from "@tauri-apps/api";
+
+export type InjectionResult = {
+    success: boolean,
+    error: string
+}
 
 export default class LoaderManager {
     static loaderPath: string | null = null;
@@ -33,6 +40,41 @@ export default class LoaderManager {
 
             await FilesystemService.writeFile("autoexec/__krampui", code);
         }
+    }
+
+    static async inject(): Promise<InjectionResult> {
+        return new Promise(async (resolve) => {
+            const loaderCommand = new Command("cmd", ["/c", "start", "/b", "/wait", "krampus-loader.exe"], { cwd: await path.appConfigDir() });
+            let loaderChild: Child;
+    
+            function onOutput(line: string) {
+                line = line.trim();
+                const errors = ["error:", "redownload", "create a ticket", "make a ticket", "cannot find user", "mismatch", "out of date", "failed to", "no active subscription"];
+    
+                if (errors.some(s => line.toLowerCase().includes(s)) && !line.endsWith(":")) {
+                    resolve({ success: false, error: line });
+                } else if (line.toLowerCase().includes("success")) {
+                    resolve({ success: true, error: "" });
+                }
+            }
+    
+            loaderCommand.on("error", (err) => {
+                console.error("Unexpected error!", err);
+                resolve({ success: false, error: "Unexpected error" });
+            });
+    
+            loaderCommand.stdout.on("data", onOutput);
+    
+            try {
+                loaderChild = await loaderCommand.spawn();
+            } catch (error) {
+                resolve({ success: false, error: "Failed to start injector!" });
+            }
+    
+            setTimeout(async () => {
+                await loaderChild.kill();
+            }, 10000);
+        });
     }
 
     static async findLoader(): Promise<boolean> {
