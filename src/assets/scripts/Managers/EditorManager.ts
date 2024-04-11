@@ -502,11 +502,11 @@ export default class EditorManager {
       );
     }
 
-    monaco.languages.setMonarchTokensProvider('lua', {
+    monaco.languages.setMonarchTokensProvider("lua", {
       tokenizer: {
         root: [
-          [new RegExp(`\\b(${globalWords.join('|')})\\b`, 'g'), "global"],
-          [new RegExp(`\\b(${keyWords.join('|')})\\b`, 'g'), "keyword"],
+          [new RegExp(`\\b(${globalWords.join("|")})\\b`, "g"), "global"],
+          [new RegExp(`\\b(${keyWords.join("|")})\\b`, "g"), "keyword"],
           [/"(?:\\.|[^\\"])*"|'(?:\\.|[^\\'])*'/gm, "string"],
           [/-?\b\d+(\.\d+)?(e[+-]?\d+)?\b/gi, "number"]
         ]

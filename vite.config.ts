@@ -1,6 +1,6 @@
 import { defineConfig } from "vite";
-import tsconfigPaths from 'vite-tsconfig-paths';
-import monacoEditorPlugin from 'vite-plugin-monaco-editor';
+import tsconfigPaths from "vite-tsconfig-paths";
+import monacoEditorPlugin from "vite-plugin-monaco-editor";
 
 export default defineConfig(async () => ({
   base: "./",

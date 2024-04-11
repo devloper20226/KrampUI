@@ -15,14 +15,14 @@ event.listen("exit", exit);
 
 
 async function initializeComponents() {
-  const components = import.meta.glob('./Components/*.ts', { eager: true });
+  const components = import.meta.glob("./Components/*.ts", { eager: true });
 
   Object.values(components).forEach(function (component: any) {
     component.default()
   });
 }
 
-document.addEventListener('DOMContentLoaded', async function () {
+document.addEventListener("DOMContentLoaded", async function () {
   if (!(await FilesystemService.exists(""))) {
     await FilesystemService.createDirectory("");
   }

@@ -1,5 +1,5 @@
 
-import { invoke } from '@tauri-apps/api';
+import { invoke } from "@tauri-apps/api";
 export type UIState = "Attached" | "Injecting" | "Idle"
 
 export default class UIManager {
