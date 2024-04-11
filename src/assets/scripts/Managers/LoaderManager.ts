@@ -51,7 +51,9 @@ export default class LoaderManager {
                 line = line.trim();
                 const errors = ["error:", "redownload", "create a ticket", "make a ticket", "cannot find user", "mismatch", "out of date", "failed to", "no active subscription"];
     
-                if (errors.some(s => line.toLowerCase().includes(s)) && !line.endsWith(":")) {
+                if (line.toLowerCase().includes("already attached")) {
+                    resolve({ success: true, error: "" });
+                } else if (errors.some(s => line.toLowerCase().includes(s)) && !line.endsWith(":")) {
                     resolve({ success: false, error: line });
                 } else if (line.toLowerCase().includes("success")) {
                     resolve({ success: true, error: "" });
