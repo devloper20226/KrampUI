@@ -5,6 +5,7 @@ export type UIState = "Attached" | "Injecting" | "Idle"
 export default class UIManager {
     static currentState: UIState = "Idle"
     static isRobloxFound: boolean = false
+    static websocketConnected: boolean = false
 
     private static UIIndicator = document.querySelector(".kr-titlebar .brand .text") as HTMLElement;
     private static injectButton = document.querySelector(".kr-inject") as HTMLElement;
@@ -27,7 +28,9 @@ export default class UIManager {
 
     private static updateButtons() {
         if (this.currentState == "Attached") {
-            this.executeButton.classList.remove("disabled");
+            if (this.websocketConnected == true) {
+                this.executeButton.classList.remove("disabled");
+            }
         } else {
             this.injectButton.classList.add("disabled");
             this.executeButton.classList.add("disabled");
@@ -62,12 +65,18 @@ export default class UIManager {
         this.updateButtons();
     }
 
-    static startRobloxActiveLoop() {
-        setInterval(async function () {
-            const isRobloxRunning: boolean = await invoke("is_roblox_running");
-            if (isRobloxRunning == UIManager.isRobloxFound) return;
+    static updateWebsocketConnected(newValue: boolean) {
+        if (this.websocketConnected == newValue) return;
+        this.websocketConnected = newValue;
+        this.updateButtons();
+    }
 
-            UIManager.updateRobloxFound(isRobloxRunning);
+    static startRobloxActiveLoop() {
+        setInterval(async () => {
+            const isRobloxRunning: boolean = await invoke("is_roblox_running");
+            if (isRobloxRunning == this.isRobloxFound) return;
+
+            this.updateRobloxFound(isRobloxRunning);
         }, 500);
     }
 }

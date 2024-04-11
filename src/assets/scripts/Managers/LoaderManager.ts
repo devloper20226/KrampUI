@@ -1,6 +1,6 @@
 import { Child, Command } from "@tauri-apps/api/shell";
 import FilesystemService from "../Services/FilesystemService";
-import { path } from "@tauri-apps/api";
+import { event, path } from "@tauri-apps/api";
 import UIManager from "./UIManager";
 import WindowManager from "./WindowManager";
 
@@ -43,6 +43,17 @@ export default class LoaderManager {
         }
     }
 
+    private static async setupWebsocketListener() {
+        event.listen("update", function(event) {
+            const isConnected: boolean = (event.payload as any).message || false;
+            console.log("Got update: " + isConnected)
+
+            if (UIManager.websocketConnected == isConnected) return;
+
+            UIManager.updateWebsocketConnected(isConnected);
+        });
+    }
+
     static async inject(): Promise<InjectionResult> {
         return new Promise(async function (resolve) {
             const loaderCommand = new Command("cmd", ["/c", "start", "/b", "/wait", "krampus-loader.exe"], { cwd: await path.appConfigDir() });
@@ -76,7 +87,7 @@ export default class LoaderManager {
                 resolve({ success: false, error: "Failed to start injector! Check whether the loader is present!" });
             }
     
-            robloxKillCheck = setInterval(async function () {
+            robloxKillCheck = setInterval(async () => {
                 if (UIManager.isRobloxFound == false) {
                     UIManager.updateStatus("Idle");
                     await loaderChild.kill();
@@ -108,6 +119,7 @@ export default class LoaderManager {
             if (file.name == "krampus-loader.exe") {
                 this.loaderPath = file.path;
                 this.setupWebsocket();
+                this.setupWebsocketListener();
                 console.log("Found loader: " + this.loaderPath)
                 return true;
             }

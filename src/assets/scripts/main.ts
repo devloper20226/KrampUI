@@ -5,7 +5,8 @@ import EditorManager from "./Managers/EditorManager";
 import UIManager from "./Managers/UIManager";
 import { TabsUIManager } from "./Managers/TabsUIManager";
 import WindowManager from "./Managers/WindowManager";
-
+import LoaderManager from "./Managers/LoaderManager";
+import { invoke } from "@tauri-apps/api";
 
 async function initializeComponents() {
   const components = import.meta.glob("./Components/*.ts", { eager: true });
@@ -24,6 +25,8 @@ document.addEventListener("DOMContentLoaded", async function () {
   await SettingsManager.initializeSettings();
   await TabsManager.initializeTabs();
   await EditorManager.setupEditor();
+  await invoke("init_websocket", { port: LoaderManager.wsPort });
+  await LoaderManager.findLoader();
   await initializeComponents();
   TabsUIManager.initializeTabs();
   WindowManager.show();
