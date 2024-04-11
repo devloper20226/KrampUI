@@ -1,5 +1,7 @@
+import { Child, Command } from "@tauri-apps/api/shell";
 import FilesystemService from "../Services/FilesystemService";
 import { exit } from "../main";
+import { path } from "@tauri-apps/api";
 
 export default class LoaderManager {
     static loaderPath: string | null = null;
@@ -34,6 +36,33 @@ export default class LoaderManager {
             await FilesystemService.writeFile("autoexec/__krampui", code);
         }
     }
+
+    static async inject() {
+        const loaderCommand = new Command("cmd", ["/c", "start", "/b", "/wait", "krampus-loader.exe"], { cwd: await path.appConfigDir() });
+
+        let injectionCompleted = false;
+        let loaderChild: Child;
+        let robloxCheck;
+
+        function onOutput(line: string) {
+            line = line ? line.trim() : "";
+            console.log(line);
+        }
+
+        loaderCommand.on("error", () => {
+            console.log("Unexpected error!");
+        })
+
+        loaderCommand.stdout.on("data", onOutput);
+
+        try {
+            loaderChild = await loaderCommand.spawn();
+            console.log("Started")
+        } catch {
+
+        }
+        
+    }   
 
     static async findLoader(): Promise<boolean> {
         function abort() {
