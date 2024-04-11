@@ -31,7 +31,6 @@ export default class UIManager {
 
     private static updateButtons() {
         if (this.currentState == "Attached") {
-            this.injectButton.classList.remove("disabled");
             this.executeButton.classList.remove("disabled");
         } else {
             this.injectButton.classList.add("disabled");
@@ -39,7 +38,7 @@ export default class UIManager {
         }
 
         if (this.isRobloxFound) {
-            if (this.currentState !== "Injecting") {
+            if (this.currentState !== "Injecting" && this.currentState !== "Attached") {
                 this.injectButton.classList.remove("disabled");
             }
             this.killButton.classList.remove("disabled")
@@ -60,7 +59,7 @@ export default class UIManager {
         if (this.isRobloxFound == newValue) return;
         this.isRobloxFound = newValue;
 
-        if (this.currentState == "Injecting" || this.currentState == "Attached") {
+        if (this.currentState !== "Idle") {
             this.updateStatus("Idle")
         }
 
