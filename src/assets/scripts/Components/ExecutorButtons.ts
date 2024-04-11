@@ -8,15 +8,15 @@ export default async function () {
     const killRobloxButton = document.querySelector(".kr-kill") as HTMLElement;
     const clearButton = document.querySelector(".kr-clear") as HTMLElement;
 
-    injectButton.addEventListener("click", async () => {
+    injectButton.addEventListener("click", async function () {
         UIManager.updateStatus("Injecting")
         const { success, error } = await LoaderManager.inject();
 
         if (success) {
-            UIManager.updateStatus("Attached")
+            UIManager.updateStatus("Attached");
         } else {
-            UIManager.updateStatus("Idle")
-            alert(`[KRAMPUS] ${error}`)
+            UIManager.updateStatus("Idle");
+            alert(`[KRAMPUS] ${error}`);
         }
     })
 

@@ -10,10 +10,10 @@ export default function () {
     onClick(document.documentElement, async function (button: string, event: MouseEvent) {
         const target = event.target as HTMLElement;
         const foundDropdown = findDropdown(target);
-        const foundDropdownContent = foundDropdown && Array.from(foundDropdown.querySelectorAll<HTMLElement>(".kr-dropdown-content")).find(d => d.parentElement === foundDropdown);
+        const foundDropdownContent = foundDropdown && Array.from(foundDropdown.querySelectorAll<HTMLElement>(".kr-dropdown-content")).find((d) => d.parentElement === foundDropdown);
         const dropdowns = Array.from(document.querySelectorAll<HTMLElement>(".kr-dropdown"));
 
-        await Promise.all(dropdowns.map(dropdown => {
+        await Promise.all(dropdowns.map(function (dropdown) {
             if (dropdown !== foundDropdown) {
                 const activeContent = dropdown.querySelector<HTMLElement>(".kr-dropdown-content.active");
                 if (activeContent) activeContent.classList.remove("active");

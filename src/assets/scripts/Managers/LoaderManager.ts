@@ -43,7 +43,7 @@ export default class LoaderManager {
     }
 
     static async inject(): Promise<InjectionResult> {
-        return new Promise(async (resolve) => {
+        return new Promise(async function (resolve) {
             const loaderCommand = new Command("cmd", ["/c", "start", "/b", "/wait", "krampus-loader.exe"], { cwd: await path.appConfigDir() });
             let loaderChild: Child;
     
@@ -58,7 +58,7 @@ export default class LoaderManager {
                 }
             }
     
-            loaderCommand.on("error", (err) => {
+            loaderCommand.on("error", function (err) {
                 console.error("Unexpected error!", err);
                 resolve({ success: false, error: "Unexpected error" });
             });
@@ -71,7 +71,7 @@ export default class LoaderManager {
                 resolve({ success: false, error: "Failed to start injector!" });
             }
     
-            setTimeout(async () => {
+            setTimeout(async function () {
                 await loaderChild.kill();
             }, 10000);
         });

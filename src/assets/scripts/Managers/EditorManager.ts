@@ -518,7 +518,7 @@ export default class EditorManager {
       theme: "dark",
       value: await TabsManager.getActiveTabContent(),
       fontFamily: "Fira Code",
-      fontSize: 13,
+      fontSize: 12,
       acceptSuggestionOnEnter: "smart",
       suggestOnTriggerCharacters: true,
       suggestSelection: "recentlyUsed",
@@ -538,7 +538,7 @@ export default class EditorManager {
       lineNumbersMinChars: 2,
     });
 
-    this.setEditorScroll(await TabsManager.getActiveTabScroll());
+    this.setEditorScroll(TabsManager.getActiveTabScroll());
 
     window.onresize = function () {
       EditorManager.editor?.layout();
@@ -550,24 +550,18 @@ export default class EditorManager {
       await TabsManager.setActiveTabContent(EditorManager.getEditorText());
     });
 
-    this.editor.onDidScrollChange(async function (e) {
-      await TabsManager.setActiveTabScroll(e.scrollTop);
+    this.editor.onDidScrollChange(function (e) {
+      TabsManager.setActiveTabScroll(e.scrollTop);
     });
 
     this.editor.addCommand(
       monaco.KeyMod.CtrlCmd | monaco.KeyCode.KeyS,
-      function () {
-        //const activeTab = tabs.find((t) => t.active === true);
-        //if (activeTab) saveTabContent(activeTab);
-      }
+      () => TabsManager.saveActiveTabContent()
     );
 
     this.editor.addCommand(
       monaco.KeyMod.CtrlCmd | monaco.KeyCode.KeyR,
-      function () {
-        //const activeTab = tabs.find((t) => t.active === true);
-        //if (activeTab) revertTabContent(activeTab);
-      }
+      () => TabsManager.revertActiveTabContent()
     );
 
     this.editor.addCommand(monaco.KeyCode.Home, () => null);

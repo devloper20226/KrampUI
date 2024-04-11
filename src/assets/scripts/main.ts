@@ -30,10 +30,10 @@ document.addEventListener("DOMContentLoaded", async function () {
 
   await UIManager.startRobloxActiveLoop();
   await SettingsManager.initializeSettings();
-  await EditorManager.setupEditor();
   await TabsManager.initializeTabs();
+  await EditorManager.setupEditor();
   await initializeComponents();
-  TabsUIManager.populateTabs();
+  TabsUIManager.initializeTabs();
 
   await appWindow.show();
   await appWindow.setFocus();

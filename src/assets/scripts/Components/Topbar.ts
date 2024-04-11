@@ -10,7 +10,7 @@ export default async function () {
     minimizeButton.addEventListener("click", appWindow.minimize);
     maximazeButton.addEventListener("click", appWindow.maximize);
     exitButton.addEventListener("click", exit);
-    helpButton.addEventListener("click", () => {
+    helpButton.addEventListener("click", function () {
         open("https://www.youtube.com/watch?v=dQw4w9WgXcQ")
     });
 }

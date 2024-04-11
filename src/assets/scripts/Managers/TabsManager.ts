@@ -4,6 +4,7 @@ import EditorManager from "./EditorManager";
 import { exit } from "../main";
 import getDirectory from "../Functions/GetDirectory";
 import { roundNumber } from "../Functions/RoundNumber";
+import { TabsUIManager } from "./TabsUIManager";
 
 export type ScriptTab = {
     id: string,
@@ -81,7 +82,8 @@ export default class TabsManager {
 
         this.tabs = tabs;
         this.unsavedTabs = unsavedTabs;
-        await this.clearUnsavedTabs();
+
+        this.clearUnsavedTabs();
         await this.checkTabs();
     }
 
@@ -162,13 +164,11 @@ export default class TabsManager {
 
         if (this.isFileTab(tab)) {
             const text = await FilesystemService.readFile(tab.path);
-            if (typeof text === "string") return text;
+            return typeof text === "string" ? text : "";
         } else {
             const text = await FilesystemService.readFile(`data/tabs/${tab.id}.lua`);
-            if (typeof text === "string") return text;
+            return typeof text === "string" ? text : "";
         }
-
-        return null;
     }
 
     static async setTabContent(tab: Tab, content: string) {
@@ -187,11 +187,11 @@ export default class TabsManager {
         return content || "";
     }
 
-    static async getActiveTabScroll(force: boolean = false): Promise<number> {
+    static getActiveTabScroll(force: boolean = false): number {
         const activeTab = this.getActiveTab();
         if (!activeTab) return 0;
 
-        const scroll = await this.getTabScroll(activeTab, force);
+        const scroll = this.getTabScroll(activeTab, force);
         return scroll || 0;
     }
 
@@ -199,33 +199,41 @@ export default class TabsManager {
         const tab = this.getActiveTab();
         if (!tab) return;
 
-        const tabContent = await this.getActiveTabContent();
-        const unsavedTab = await this.getActiveUnsavedTab();
+        const tabContent = await this.getActiveTabContent(true);
+        const unsavedTab = this.getActiveUnsavedTab();
 
         if (content !== tabContent) {
             if (unsavedTab) {
                 unsavedTab.content = content;
                 unsavedTab.scroll = roundNumber(unsavedTab.scroll || tab.scroll || 0, 10);
             }
-            else await this.addUnsavedTab({ id: tab.id, content, scroll: roundNumber(tab.scroll || 0, 10) });
-        } else if (unsavedTab && unsavedTab.scroll === roundNumber(tab.scroll, 10)) await this.removeUnsavedTab(unsavedTab);
+            else this.addUnsavedTab({ id: tab.id, content, scroll: roundNumber(tab.scroll || 0, 10) });
+            TabsUIManager.populateTabs();
+        } else if (unsavedTab && unsavedTab.scroll === roundNumber(tab.scroll, 10)) {
+            this.removeUnsavedTab(unsavedTab);
+            TabsUIManager.populateTabs();
+        }
     }
 
-    static async setActiveTabScroll(_scroll: number) {
+    static setActiveTabScroll(_scroll: number) {
         const tab = this.getActiveTab();
         if (!tab) return;
 
         const scroll = roundNumber(_scroll, 10);
-        const tabScroll = await this.getActiveTabScroll();
-        const unsavedTab = await this.getActiveUnsavedTab();
+        const tabScroll = this.getActiveTabScroll();
+        const unsavedTab = this.getActiveUnsavedTab();
 
         if (scroll !== roundNumber(tabScroll, 10)) {
             if (unsavedTab) {
                 unsavedTab.content = unsavedTab.content || null;
                 unsavedTab.scroll = scroll;
             }
-            else await this.addUnsavedTab({ id: tab.id, content: null, scroll });
-        } else if (unsavedTab && unsavedTab.content === null) this.removeUnsavedTab(unsavedTab);
+            else this.addUnsavedTab({ id: tab.id, content: null, scroll });
+            TabsUIManager.populateTabs();
+        } else if (unsavedTab && unsavedTab.content === null) {
+            this.removeUnsavedTab(unsavedTab);
+            TabsUIManager.populateTabs();
+        }
     }
 
     static getTabName(tab: Tab) {
@@ -245,15 +253,18 @@ export default class TabsManager {
         return tab.scroll;
     }
 
-    static async setActiveTab(tab: Tab) {
-        if (!tab.active) {
+    static async setActiveTab(tab: Tab, force: boolean = false) {
+        if (force || !tab.active) {
+            const activeTab = this.getActiveTab();
+            if (activeTab) activeTab.active = false;
+
             tab.active = true;
             await this.saveTabs();
             
             const content = await this.getTabContent(tab);
             const scroll = this.getTabScroll(tab);
 
-            if (content) EditorManager.setEditorText(content);
+            if (content !== null) EditorManager.setEditorText(content);
             EditorManager.setEditorScroll(scroll);
         }
     }
@@ -267,15 +278,48 @@ export default class TabsManager {
         return newTab;
     }
 
+    static async saveActiveTabContent() {
+        const unsavedTab = this.getActiveUnsavedTab();
+        const activeTab = this.getActiveTab();
+
+        if (unsavedTab) {
+            if (unsavedTab.content !== null && activeTab) await this.setTabContent(activeTab, unsavedTab.content);
+            this.setActiveTabScroll(unsavedTab.scroll);
+
+            this.removeUnsavedTab(unsavedTab);
+            TabsUIManager.populateTabs();
+        }
+    }
+
+    static async revertActiveTabContent() {
+        const unsavedTab = this.getActiveUnsavedTab();
+
+        if (unsavedTab) {
+            const content = await this.getActiveTabContent(true);
+            const scroll = this.getActiveTabScroll(true);
+
+            await this.setActiveTabContent(content);
+            this.setActiveTabScroll(scroll);
+
+            EditorManager.setEditorText(content);
+            EditorManager.setEditorScroll(scroll);
+
+            this.removeUnsavedTab(unsavedTab);
+            TabsUIManager.populateTabs();
+        }
+    }
+
     static async removeTab(tab: Tab) {
         if (this.tabs?.length === 1) return;
 
         const index = this.tabs?.findIndex((t) => t.id === tab.id);
 
-        const newTab = this.getNewTab(tab);
-        if (newTab) await this.setActiveTab(newTab);
+        if (tab.active) {
+            const newTab = this.getNewTab(tab);
+            if (newTab) await this.setActiveTab(newTab);
+        }
 
-        if (index) {
+        if (index !== undefined && index >= 0) {
             this.tabs?.splice(index, 1);
             await this.saveTabs();
         }
@@ -320,49 +364,55 @@ export default class TabsManager {
     }
 
     static async addNewTab(): Promise<Tab> {
-        return await this.addTab({
+        const tab = await this.addTab({
             id: this.getTabId(),
             order: this.getNextOrder(),
             name: "Script",
             active: true,
             scroll: 0
         });
+
+        await this.setActiveTab(tab, true);
+        return tab;
     }
 
     static async addNewFileTab(path: string): Promise<Tab> {
-        const tab = this.tabs?.find((t) => this.isFileTab(t) && t.path === path);
+        let tab = this.tabs?.find((t) => this.isFileTab(t) && t.path === path);
 
         if (tab) {
             await this.setActiveTab(tab);
             return tab;
         }
-        else return await this.addTab({
+        else tab = await this.addTab({
             id: this.getTabId(),
             order: this.getNextOrder(),
             path,
             active: true,
             scroll: 0
         });
+
+        await this.setActiveTab(tab, true);
+        return tab;
     }
 
-    static async addUnsavedTab(tab: UnsavedTab) {
+    static addUnsavedTab(tab: UnsavedTab) {
         this.unsavedTabs?.push(tab);
     }
 
-    static async removeUnsavedTab(tab: UnsavedTab) {
+    static removeUnsavedTab(tab: UnsavedTab) {
         const index = this.unsavedTabs?.findIndex((t) => t.id === tab.id);
 
-        if (index) {
+        if (index !== undefined && index >= 0) {
             this.unsavedTabs?.splice(index, 1);
         }
     }
 
-    private static async clearUnsavedTabs() {
+    private static clearUnsavedTabs() {
         if (this.unsavedTabs) {
             for (const tab of this.unsavedTabs) {
                 if (!this.tabs?.find((t) => t.id === tab.id)) {
                     const index = this.unsavedTabs?.findIndex((t) => t.id === tab.id);
-                    if (index) this.unsavedTabs?.splice(index, 1);
+                    if (index !== undefined && index >= 0) this.unsavedTabs?.splice(index, 1);
                 }
             }
         }
