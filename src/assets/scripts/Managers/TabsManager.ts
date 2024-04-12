@@ -159,7 +159,7 @@ export default class TabsManager {
     static async getTabContent(tab: Tab, force: boolean = false): Promise<string | null> {
         if (!force) {
             const unsavedTab = this.unsavedTabs?.find((t) => t.id === tab.id);
-            if (unsavedTab) return unsavedTab.content;
+            if (unsavedTab && unsavedTab.content !== null) return unsavedTab.content;
         }
 
         if (this.isFileTab(tab)) {
@@ -220,7 +220,7 @@ export default class TabsManager {
         if (!tab) return;
 
         const scroll = roundNumber(_scroll, 10);
-        const tabScroll = this.getActiveTabScroll();
+        const tabScroll = this.getActiveTabScroll(true);
         const unsavedTab = this.getActiveUnsavedTab();
 
         if (scroll !== roundNumber(tabScroll, 10)) {
@@ -266,6 +266,7 @@ export default class TabsManager {
 
             if (content !== null) EditorManager.setEditorText(content);
             EditorManager.setEditorScroll(scroll);
+            EditorManager.focusEditor();
         }
     }
 
@@ -278,20 +279,21 @@ export default class TabsManager {
         return newTab;
     }
 
-    static async saveActiveTabContent() {
+    static async saveActiveTab() {
         const unsavedTab = this.getActiveUnsavedTab();
         const activeTab = this.getActiveTab();
 
         if (unsavedTab) {
             if (unsavedTab.content !== null && activeTab) await this.setTabContent(activeTab, unsavedTab.content);
             this.setActiveTabScroll(unsavedTab.scroll);
-
             this.removeUnsavedTab(unsavedTab);
+            if (activeTab) activeTab.scroll = unsavedTab.scroll;
+            TabsManager.saveTabs();
             TabsUIManager.populateTabs();
         }
     }
 
-    static async revertActiveTabContent() {
+    static async revertActiveTab() {
         const unsavedTab = this.getActiveUnsavedTab();
 
         if (unsavedTab) {

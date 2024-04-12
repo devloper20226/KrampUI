@@ -2,9 +2,9 @@ import * as monaco from "monaco-editor";
 import TabsManager from "./TabsManager";
 
 export default class EditorManager {
-  static editor: monaco.editor.IStandaloneCodeEditor | null = null;
-  static editorProposals: any[] = [];
-  static dynamicEditorProposals: any[] = [];
+  private static editor: monaco.editor.IStandaloneCodeEditor | null = null;
+  private static editorProposals: any[] = [];
+  private static dynamicEditorProposals: any[] = [];
 
   private static exploitEditor = document.querySelector(
     ".exploit .main .container .editor"
@@ -556,12 +556,12 @@ export default class EditorManager {
 
     this.editor.addCommand(
       monaco.KeyMod.CtrlCmd | monaco.KeyCode.KeyS,
-      () => TabsManager.saveActiveTabContent()
+      () => TabsManager.saveActiveTab()
     );
 
     this.editor.addCommand(
       monaco.KeyMod.CtrlCmd | monaco.KeyCode.KeyR,
-      () => TabsManager.revertActiveTabContent()
+      () => TabsManager.revertActiveTab()
     );
 
     this.editor.addCommand(monaco.KeyCode.Home, () => null);
@@ -594,5 +594,9 @@ export default class EditorManager {
   static setEditorScroll(scroll: number) {
     if (this.editor === null) return;
     this.editor.setScrollTop(scroll);
+  }
+
+  static focusEditor() {
+    this.editor?.focus();
   }
 }
