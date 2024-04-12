@@ -206,17 +206,17 @@ export default class EditorManager {
     }
 
     for (const key of [
-      "and",
+      " and ",
       "break",
       "do",
-      "else",
-      "elseif",
+      " else ",
+      " elseif ",
       "end",
       "false",
       "for",
       "function",
       "if",
-      "in",
+      " in ",
       "local",
       "nil",
       "not",
