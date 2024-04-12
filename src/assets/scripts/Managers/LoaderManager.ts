@@ -46,7 +46,6 @@ export default class LoaderManager {
     private static async setupWebsocketListener() {
         event.listen("update", function(event) {
             const isConnected: boolean = (event.payload as any).message || false;
-            console.log("Got update: " + isConnected)
 
             if (UIManager.websocketConnected == isConnected) return;
 
@@ -54,7 +53,15 @@ export default class LoaderManager {
         });
     }
 
-    static async inject(): Promise<InjectionResult> {
+    static async inject(autoInject: boolean = false): Promise<InjectionResult> {
+        if (autoInject == true) {
+            await new Promise<void>(async function(resolve) {
+                setTimeout(() => {
+                    resolve()
+                }, 3000)
+            })
+        }
+
         return new Promise(async function (resolve) {
             const loaderCommand = new Command("cmd", ["/c", "start", "/b", "/wait", "krampus-loader.exe"], { cwd: await path.appConfigDir() });
             let loaderChild: Child;

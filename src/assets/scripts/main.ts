@@ -1,12 +1,12 @@
+import { invoke } from "@tauri-apps/api";
 import SettingsManager from "./Managers/SettingsManager";
 import FilesystemService from "./Services/FilesystemService";
 import TabsManager from "./Managers/TabsManager";
 import EditorManager from "./Managers/EditorManager";
 import UIManager from "./Managers/UIManager";
 import { TabsUIManager } from "./Managers/TabsUIManager";
-import WindowManager from "./Managers/WindowManager";
 import LoaderManager from "./Managers/LoaderManager";
-import { invoke } from "@tauri-apps/api";
+import WindowManager from "./Managers/WindowManager";
 
 async function initializeComponents() {
   const components = import.meta.glob("./Components/*.ts", { eager: true });

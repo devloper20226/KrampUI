@@ -1,5 +1,7 @@
 
 import { invoke } from "@tauri-apps/api";
+import SettingsManager from "./SettingsManager";
+import LoaderManager from "./LoaderManager";
 export type UIState = "Attached" | "Injecting" | "Idle"
 
 export default class UIManager {
@@ -30,6 +32,8 @@ export default class UIManager {
         if (this.currentState == "Attached") {
             if (this.websocketConnected == true) {
                 this.executeButton.classList.remove("disabled");
+            } else {
+                this.executeButton.classList.add("disabled");
             }
         } else {
             this.injectButton.classList.add("disabled");
@@ -54,7 +58,7 @@ export default class UIManager {
         this.updateButtons();
     }
 
-    static updateRobloxFound(newValue: boolean) {
+    static async updateRobloxFound(newValue: boolean) {
         if (this.isRobloxFound == newValue) return;
         this.isRobloxFound = newValue;
 
@@ -63,6 +67,18 @@ export default class UIManager {
         }
 
         this.updateButtons();
+
+        if (SettingsManager.currentSettings?.autoInject == true && this.isRobloxFound == true && this.currentState == "Idle") {
+            UIManager.updateStatus("Injecting")
+            const { success, error } = await LoaderManager.inject(true);
+
+            if (success) {
+                UIManager.updateStatus("Attached");
+            } else {
+                UIManager.updateStatus("Idle");
+                alert(`[KRAMPUS] ${error}`);
+            }
+        }
     }
 
     static updateWebsocketConnected(newValue: boolean) {
