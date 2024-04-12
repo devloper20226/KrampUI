@@ -88,11 +88,11 @@ export default class UIManager {
     }
 
     static startRobloxActiveLoop() {
-        setInterval(async () => {
+        setInterval(async function () {
             const isRobloxRunning: boolean = await invoke("is_roblox_running");
-            if (isRobloxRunning == this.isRobloxFound) return;
+            if (isRobloxRunning == UIManager.isRobloxFound) return;
 
-            this.updateRobloxFound(isRobloxRunning);
+            UIManager.updateRobloxFound(isRobloxRunning);
         }, 500);
     }
 }

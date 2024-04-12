@@ -30,7 +30,7 @@ export default async function () {
         EditorManager.setEditorScroll(0);
     });
 
-    executeButton.addEventListener("click", async () => {
+    executeButton.addEventListener("click", async function () {
         await invoke("execute_script", { text: EditorManager.getEditorText() })
     })
 }

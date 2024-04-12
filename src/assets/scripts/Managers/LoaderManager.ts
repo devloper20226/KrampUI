@@ -56,16 +56,15 @@ export default class LoaderManager {
     static async inject(autoInject: boolean = false): Promise<InjectionResult> {
         if (autoInject == true) {
             await new Promise<void>(async function(resolve) {
-                setTimeout(() => {
-                    resolve()
-                }, 3000)
-            })
+                setTimeout(() => resolve(), 3000)
+            });
         }
 
         return new Promise(async function (resolve) {
             const loaderCommand = new Command("cmd", ["/c", "start", "/b", "/wait", "krampus-loader.exe"], { cwd: await path.appConfigDir() });
             let loaderChild: Child;
             let robloxKillCheck: number;
+            let killTimeout: number;
 
             function onOutput(line: string) {
                 line = line.trim();
@@ -94,18 +93,20 @@ export default class LoaderManager {
                 resolve({ success: false, error: "Failed to start injector! Check whether the loader is present!" });
             }
     
-            robloxKillCheck = setInterval(async () => {
+            robloxKillCheck = setInterval(async function () {
                 if (UIManager.isRobloxFound == false) {
                     UIManager.updateStatus("Idle");
                     await loaderChild.kill();
+                    clearTimeout(killTimeout);
+                    clearInterval(robloxKillCheck);
                     resolve({ success: false, error: "Roblox was closed while injecting" })
                 }
-            }, 501)
+            }, 500);
 
-            setTimeout(async function () {
+            killTimeout = setTimeout(async function () {
                 await loaderChild.kill();
                 clearInterval(robloxKillCheck);
-            }, 10000);
+            }, 15000);
         });
     }
 

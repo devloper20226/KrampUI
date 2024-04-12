@@ -60,7 +60,9 @@ export default class WindowManager {
         const isToggleLocked = this.toggleLock;
         if (!isToggleLocked) this.hide(true);
 
-        await TabsManager.saveUnsavedTabs();
-        await process.exit();
+        setTimeout(async function () {
+            await TabsManager.saveUnsavedTabs();
+            await process.exit();
+        }, 100);
     }
 };
