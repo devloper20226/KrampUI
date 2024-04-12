@@ -1,8 +1,9 @@
 import { Child, Command } from "@tauri-apps/api/shell";
 import FilesystemService from "../Services/FilesystemService";
-import { event, path } from "@tauri-apps/api";
+import { event, invoke, path } from "@tauri-apps/api";
 import UIManager from "./UIManager";
-import WindowManager from "./WindowManager";
+import WindowService from "../Services/WindowService";
+import EditorManager from "./EditorManager";
 
 export type InjectionResult = {
     success: boolean,
@@ -78,12 +79,7 @@ export default class LoaderManager {
                     resolve({ success: true, error: "" });
                 }
             }
-    
-            loaderCommand.on("error", function (err) {
-                console.error("Unexpected error!", err);
-                resolve({ success: false, error: "Unexpected error" });
-            });
-    
+
             loaderCommand.stdout.on("data", onOutput);
             loaderCommand.stderr.on("data", onOutput);
     
@@ -110,10 +106,14 @@ export default class LoaderManager {
         });
     }
 
+    static async execute(script: string | null = null) {
+        await invoke("execute_script", { text: script ? script : EditorManager.getEditorText() });
+    }
+
     static async findLoader(): Promise<boolean> {
         function abort() {
             alert("Failed to find loader! (0x1)");
-            WindowManager.exit();
+            WindowService.exit();
         }
 
         const dataFiles = await FilesystemService.listDirectoryFiles("");
@@ -128,7 +128,6 @@ export default class LoaderManager {
                 this.loaderPath = file.path;
                 this.setupWebsocket();
                 this.setupWebsocketListener();
-                console.log("Found loader: " + this.loaderPath)
                 return true;
             }
         }
@@ -139,7 +138,7 @@ export default class LoaderManager {
     static async clearExecutables() {
         function abort() {
             alert("Failed to clear executables! (0x3)");
-            WindowManager.exit();
+            WindowService.exit();
         }
 
         const dataFiles = await FilesystemService.listDirectoryFiles("");

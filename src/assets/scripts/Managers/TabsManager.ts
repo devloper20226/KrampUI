@@ -4,7 +4,7 @@ import EditorManager from "./EditorManager";
 import getDirectory from "../Functions/GetDirectory";
 import { roundNumber } from "../Functions/RoundNumber";
 import { TabsUIManager } from "./TabsUIManager";
-import WindowManager from "./WindowManager";
+import WindowService from "../Services/WindowService";
 
 export type ScriptTab = {
     id: string,
@@ -45,7 +45,7 @@ export default class TabsManager {
 
         function abort() {
             alert("Failed to initialize Tabs manager! (0x4)");
-            WindowManager.exit();
+            WindowService.exit();
         }
 
         const defaultTabs: Tabs = [];

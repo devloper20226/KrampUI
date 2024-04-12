@@ -6,7 +6,7 @@ import EditorManager from "./Managers/EditorManager";
 import UIManager from "./Managers/UIManager";
 import { TabsUIManager } from "./Managers/TabsUIManager";
 import LoaderManager from "./Managers/LoaderManager";
-import WindowManager from "./Managers/WindowManager";
+import WindowService from "./Services/WindowService";
 
 async function initializeComponents() {
   const components = import.meta.glob("./Components/*.ts", { eager: true });
@@ -29,5 +29,5 @@ document.addEventListener("DOMContentLoaded", async function () {
   await LoaderManager.findLoader();
   await initializeComponents();
   TabsUIManager.initializeTabs();
-  WindowManager.show();
+  WindowService.show();
 });

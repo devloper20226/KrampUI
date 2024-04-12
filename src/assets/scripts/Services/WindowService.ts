@@ -1,9 +1,9 @@
 import { appWindow } from "@tauri-apps/api/window";
-import SettingsManager from "./SettingsManager";
-import TabsManager from "./TabsManager";
+import SettingsManager from "../Managers/SettingsManager";
+import TabsManager from "../Managers/TabsManager";
 import { invoke, process } from "@tauri-apps/api";
 
-export default class WindowManager {
+export default class WindowService {
     static toggleLock: boolean = false;
 
     static async initKeyEvents() {
@@ -35,7 +35,7 @@ export default class WindowManager {
 
         document.body.classList.remove("kr-hidden");
         setTimeout(function () {
-            WindowManager.toggleLock = false;
+            WindowService.toggleLock = false;
         }, 100);
     }
 
@@ -47,7 +47,7 @@ export default class WindowManager {
         if (animationOnly) this.toggleLock = false
         else setTimeout(async function () {
             await appWindow.hide();
-            WindowManager.toggleLock = false;
+            WindowService.toggleLock = false;
         }, 100);
     }
 
