@@ -206,21 +206,21 @@ export default class EditorManager {
     }
 
     for (const key of [
-      " and ",
+      "and",
       "break",
       "do",
-      " else ",
-      " elseif ",
+      "else",
+      "elseif",
       "end",
       "false",
       "for",
       "function",
       "if",
-      " in ",
+      "in",
       "local",
       "nil",
       "not",
-      " or ",
+      "or",
       "repeat",
       "return",
       "then",
@@ -505,13 +505,13 @@ export default class EditorManager {
     monaco.languages.setMonarchTokensProvider("lua", {
       tokenizer: {
         root: [
-          [new RegExp(`\\b(${globalWords.join("|")})\\b`, "g"), "global"],
-          [new RegExp(`\\b(${keyWords.join("|")})\\b`, "g"), "keyword"],
+          [new RegExp(`\\b(${globalWords.join("|")})\\b(?!\\s*=)`, "g"), "global"],
+          [new RegExp(`\\b(${keyWords.join("|")})\\b(?!\\s*=)`, "g"), "keyword"],
           [/"(?:\\.|[^\\"])*"|'(?:\\.|[^\\'])*'/gm, "string"],
           [/-?\b\d+(\.\d+)?(e[+-]?\d+)?\b/gi, "number"]
         ]
       }
-    })
+    });
 
     this.editor = monaco.editor.create(this.exploitEditor, {
       language: "lua",
