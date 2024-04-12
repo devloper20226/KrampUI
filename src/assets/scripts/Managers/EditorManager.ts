@@ -220,7 +220,7 @@ export default class EditorManager {
       "local",
       "nil",
       "not",
-      "or",
+      " or ",
       "repeat",
       "return",
       "then",
@@ -536,6 +536,9 @@ export default class EditorManager {
       smoothScrolling: true,
       contextmenu: true,
       lineNumbersMinChars: 2,
+      stickyScroll: {
+        enabled: false
+      }
     });
 
     this.setEditorScroll(TabsManager.getActiveTabScroll());
