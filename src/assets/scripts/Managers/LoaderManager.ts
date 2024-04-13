@@ -21,27 +21,30 @@ export default class LoaderManager {
             await FilesystemService.createDirectory("autoexec");
         }
 
-        const doesWebsocketCodeExist = await FilesystemService.exists("autoexec/__krampui");
+        // We just gonna overwrite it everytime, since we updated websocket code and it doesnt matter
 
-        if (!doesWebsocketCodeExist) {
-            const code = `
-                while not getgenv().KR_READY and task.wait(1) do
-                    pcall(function()
-                        getgenv().KR_WEBSOCKET = websocket.connect("ws://127.0.0.1:${this.wsPort}")
-                        getgenv().KR_WEBSOCKET:Send("connect")
-                        getgenv().KR_READY = true
+        const code = `
+            while not getgenv().KR_READY and task.wait(1) do
+                pcall(function()
+                    getgenv().KR_WEBSOCKET = websocket.connect("ws://127.0.0.1:${this.wsPort}")
+                    getgenv().KR_WEBSOCKET:Send("connect")
+                    getgenv().KR_READY = true
 
-                        getgenv().KR_WEBSOCKET.OnMessage:Connect(function(message)
-                            pcall(function()
-                                loadstring(message)()
+                    getgenv().KR_WEBSOCKET.OnMessage:Connect(function(message)
+                        local codeToRun = loadstring(message)
+                        if codeToRun ~= nil then
+                            task.spawn(codeToRun)
+                        else 
+                            task.spawn(function()
+                                error("Failed to compile the code, please check for syntax errors")
                             end)
-                        end)
+                        end
                     end)
-                end
-            `.replace(/(--.*$|\/\*[\s\S]*?\*\/)/gm, "").replace(/\s+/g, " ").trim();
+                end)
+            end
+        `.replace(/(--.*$|\/\*[\s\S]*?\*\/)/gm, "").replace(/\s+/g, " ").trim();
 
-            await FilesystemService.writeFile("autoexec/__krampui", code);
-        }
+        await FilesystemService.writeFile("autoexec/__krampui", code);
     }
 
     private static async setupWebsocketListener() {
