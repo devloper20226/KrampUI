@@ -7,13 +7,7 @@ import EditorManager from "./Managers/EditorManager";
 import UIManager from "./Managers/UIManager";
 import { TabsUIManager } from "./Managers/TabsUIManager";
 import LoaderManager from "./Managers/LoaderManager";
-
-export async function exit() {
-  await TabsManager.saveUnsavedTabs();
-  await process.exit();
-}
-
-event.listen("exit", exit);
+import WindowManager from "./Managers/WindowManager";
 
 
 async function initializeComponents() {
@@ -37,8 +31,5 @@ document.addEventListener("DOMContentLoaded", async function () {
   await LoaderManager.findLoader();
   await initializeComponents();
   TabsUIManager.initializeTabs();
-
-  await appWindow.show();
-  await appWindow.setFocus();
-  document.body.classList.remove("kr-hidden");
+  WindowManager.show();
 });

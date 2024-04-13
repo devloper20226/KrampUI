@@ -1,10 +1,10 @@
 import FilesystemService from "../Services/FilesystemService";
 import randomString from "../Functions/RandomString";
 import EditorManager from "./EditorManager";
-import { exit } from "../main";
 import getDirectory from "../Functions/GetDirectory";
 import { roundNumber } from "../Functions/RoundNumber";
 import { TabsUIManager } from "./TabsUIManager";
+import WindowManager from "./WindowManager";
 
 export type ScriptTab = {
     id: string,
@@ -45,7 +45,7 @@ export default class TabsManager {
 
         function abort() {
             alert("Failed to initialize Tabs manager! (0x4)");
-            exit();
+            WindowManager.exit();
         }
 
         const defaultTabs: Tabs = [];
@@ -301,7 +301,7 @@ export default class TabsManager {
             await this.setActiveTabContent(content);
             this.setActiveTabScroll(scroll);
 
-            EditorManager.setEditorText(content);
+            EditorManager.setEditorText(content, true);
             EditorManager.setEditorScroll(scroll);
 
             this.removeUnsavedTab(unsavedTab);

@@ -6,33 +6,9 @@ use sysinfo::System;
 use tauri::{CustomMenuItem, Manager, SystemTray, SystemTrayEvent, SystemTrayMenu, WindowEvent};
 use lazy_static::lazy_static;
 
-#[derive(Clone, serde::Serialize)]
+#[derive(Clone, Serialize)]
 struct Payload {
   message: String,
-}
-
-#[tauri::command]
-fn log(message: String) {
-    println!("{}", message);
-}
-
-#[tauri::command]
-fn kill_roblox() -> bool {
-    return match System::new_all().processes_by_name("RobloxPlayerBeta.exe").next() {
-        Some(process) => process.kill(),
-        _ => false
-    };
-}
-
-#[tauri::command]
-fn is_roblox_running() -> bool {
-    return System::new_all().processes_by_name("RobloxPlayerBeta.exe").next().is_some();
-}
-
-lazy_static! {
-    static ref CONNECTED: Arc<Mutex<bool>> = Arc::new(Mutex::new(false));
-    static ref WEBSOCKET_INITIALIZED: Arc<Mutex<bool>> = Arc::new(Mutex::new(false));
-    static ref WEBSOCKET: Arc<Mutex<Option<ws::Sender>>> = Arc::new(Mutex::new(None));
 }
 
 #[derive(Clone, Serialize)]
@@ -40,16 +16,132 @@ struct PayloadUpdate {
   message: bool,
 }
 
+#[derive(Clone, Serialize)]
+struct Payload2 {
+  args: Vec<String>,
+  cwd: String,
+}
 
-#[tauri::command]
-fn init_websocket(window: tauri::Window, port: u16) {
+#[command]
+fn kill_roblox() -> bool {
+    return match System::new_all().processes_by_name("RobloxPlayerBeta.exe").next() {
+        Some(process) => process.kill(),
+        _ => false
+    };
+}
+
+#[command]
+fn is_roblox_running() -> bool {
+    return System::new_all().processes_by_name("RobloxPlayerBeta.exe").next().is_some();
+}
+
+async fn get_latest_release() -> Option<(String, String)> {
+    let client = Client::new();
+    let response = client.get("https://api.github.com/repos/BitdancerStudios/KrampUI/releases/latest")
+        .header("User-Agent", "KrampUI")
+        .timeout(Duration::from_secs(5))
+        .send()
+        .await;
+
+    return match response {
+        Ok(response) =>  match response.status().is_success() {
+            true => {
+                let json: Value = match response.json().await {
+                    Ok(json) => json,
+                    Err(_) => return None
+                };
+
+                let version = match json.get("tag_name") {
+                    Some(version) => match version.as_str() {
+                        Some(version) => version.replace("v", ""),
+                        None => return None
+                    },
+                    None => return None
+                };
+
+                let release = match json.get("html_url") {
+                    Some(release) => match release.as_str() {
+                        Some(release) => release.to_string(),
+                        None => return None
+                    },
+                    None => return None
+                };
+
+                return Some((version, release));
+            },
+            false => None
+        },
+        Err(_) => None
+    };
+}
+
+#[command]
+async fn create_directory(path: String) -> bool {
+    return match fs::create_dir_all(&path).await {
+        Ok(_) => true,
+        Err(_) => false
+    };
+}
+
+#[command]
+async fn write_file(path: String, data: String) -> bool {
+    return match fs::write(&path, &data).await {
+        Ok(_) => true,
+        Err(_) => false
+    };
+}
+
+#[command]
+async fn delete_directory(path: String) -> bool {
+    return match fs::remove_dir_all(&path).await {
+        Ok(_) => true,
+        Err(_) => false
+    };
+}
+
+#[command]
+async fn delete_file(path: String) -> bool {
+    return match fs::remove_file(&path).await {
+        Ok(_) => true,
+        Err(_) => false
+    };
+}
+
+lazy_static! {
+    static ref CONNECTED: Arc<Mutex<bool>> = Arc::new(Mutex::new(false));
+    static ref KEY_EVENTS_INITIALIZED: Arc<Mutex<bool>> = Arc::new(Mutex::new(false));
+    static ref WEBSOCKET_INITIALIZED: Arc<Mutex<bool>> = Arc::new(Mutex::new(false));
+    static ref WEBSOCKET: Arc<Mutex<Option<ws::Sender>>> = Arc::new(Mutex::new(None));
+}
+
+#[command]
+fn init_key_events(window: Window) {
+    let mut key_events_initialized = KEY_EVENTS_INITIALIZED.lock().unwrap();
+
+    if !*key_events_initialized {
+        *key_events_initialized = true;
+        
+        thread::spawn(move || {
+            let callback = move | event: Event | {
+                if let EventType::KeyRelease(key) = event.event_type {
+                    window.emit("key-press", Payload { message: format!("{:?}", key) }).unwrap();
+                }
+            };
+
+            listen(callback).unwrap();
+        });
+    }
+}
+
+#[command]
+fn init_websocket(window: Window, port: u16) {
     let mut websocket_initialized = WEBSOCKET_INITIALIZED.lock().unwrap();
 
     if !*websocket_initialized {
         *websocket_initialized = true;
 
         struct Server {
-            window: tauri::Window
+            window: Window
         }
 
         impl ws::Handler for Server {
@@ -95,26 +187,70 @@ fn init_websocket(window: tauri::Window, port: u16) {
     }
 }
 
-#[tauri::command]
+#[command]
 fn execute_script(text: &str) {    
     if let Some(websocket) = WEBSOCKET.lock().unwrap().clone() {
         websocket.send(text).unwrap();
     }
 }
 
-#[derive(Clone, serde::Serialize)]
-struct SingleInstancePayload {
-  args: Vec<String>,
-  cwd: String,
+#[command]
+fn log(message: String, _type: Option<String>) {
+    let prefix: Option<ColoredString> = match _type {
+        Some(_type) => match _type.as_str() {
+            "info" => Some("[ INFO ]".cyan()),
+            "success" => Some("[  OK  ]".green()),
+            "warn" => Some("[ WARN ]".yellow()),
+            "error" => Some("[ FAIL ]".red()),
+            _ => None
+        },
+        None => None
+    };
+
+    if let Some(prefix) = prefix {
+        println!("{} {}", prefix, message);
+    } else {
+        println!("{}", message);
+    }
 }
 
 #[tokio::main]
 async fn main() {
+    control::set_virtual_terminal(true).ok();
+
+    if let Some((latest_version, link)) = get_latest_release().await {
+        let current_version = env!("CARGO_PKG_VERSION");
+
+        let latest_version_number = match latest_version.replace(".", "").parse::<i32>() {
+            Ok(number) => Some(number),
+            Err(_) => None
+        };
+
+        let current_version_number = match current_version.replace(".", "").parse::<i32>() {
+            Ok(number) => Some(number),
+            Err(_) => None
+        };
+
+        if latest_version_number.is_some() && current_version_number.is_some() && latest_version_number.unwrap() > current_version_number.unwrap() {
+            let message = format!("Would you like to update?\nYou are on v{}, the latest is v{}.", current_version, latest_version);
+            let wide_message: Vec<u16> = OsString::from(&message).encode_wide().chain(Some(0)).collect();
+            let response = win_msgbox::information::<YesNo>(wide_message.as_ptr())
+                .title(w!("KrampUI"))
+                .show()
+                .unwrap();
+            
+            if response == YesNo::Yes {
+                open::that(link).unwrap();
+                return;
+            }
+        }
+    }
+
     let toggle = CustomMenuItem::new("toggle".to_string(), "Toggle");
     let quit = CustomMenuItem::new("quit".to_string(), "Quit");
     let tray = SystemTrayMenu::new().add_item(toggle).add_item(quit);
-
-    tauri::Builder::default()
+    
+    Builder::default()
         .on_window_event(|e| {
             if let WindowEvent::Resized(_) = e.event() {
                 sleep(Duration::from_millis(5));
@@ -124,7 +260,7 @@ async fn main() {
         .on_system_tray_event(| app, e | match e {
             SystemTrayEvent::MenuItemClick { id, .. } => {
                 let window = app.get_window("main").unwrap();
-
+                
                 match id.as_str() {
                     "toggle" => window.emit("toggle", Payload { message: "".to_string() }).unwrap(),
                     "quit" => window.emit("exit", Payload { message: "".to_string() }).unwrap(),
@@ -132,17 +268,22 @@ async fn main() {
                 }
             }
             _ => {}
-        })
+          })
         .plugin(tauri_plugin_single_instance::init(|app, argv, cwd| {
-            app.emit_all("single-instance", SingleInstancePayload { args: argv, cwd }).unwrap();
+            app.emit_all("single-instance", Payload2 { args: argv, cwd }).unwrap();
         }))
-        .invoke_handler(tauri::generate_handler![
-            log,
+        .invoke_handler(generate_handler![
+            init_websocket,
+            init_key_events,
+            execute_script,
             is_roblox_running,
             kill_roblox,
-            init_websocket,
-            execute_script
+            log,
+            create_directory,
+            write_file,
+            delete_directory,
+            delete_file
         ])
-        .run(tauri::generate_context!())
-        .expect("error while running tauri application");
+        .run(generate_context!())
+        .expect("Failed to launch application.");
 }
