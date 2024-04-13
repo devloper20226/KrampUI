@@ -1,5 +1,4 @@
-import { event, invoke, process } from "@tauri-apps/api";
-import { appWindow } from "@tauri-apps/api/window";
+import { invoke } from "@tauri-apps/api";
 import SettingsManager from "./Managers/SettingsManager";
 import FilesystemService from "./Services/FilesystemService";
 import TabsManager from "./Managers/TabsManager";
