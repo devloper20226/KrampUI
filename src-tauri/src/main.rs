@@ -1,10 +1,18 @@
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 
-use std::{sync::{Arc, Mutex}, thread::{self, sleep}, time::Duration};
+use std::{ffi::OsString, sync::{Arc, Mutex}, thread::{self, sleep}, time::Duration};
+use colored::{control, ColoredString, Colorize};
+use rdev::{listen, Event, EventType};
+use reqwest::Client;
 use serde::Serialize;
+use serde_json::Value;
 use sysinfo::System;
-use tauri::{CustomMenuItem, Manager, SystemTray, SystemTrayEvent, SystemTrayMenu, WindowEvent};
+use tauri::{command, generate_context, generate_handler, CustomMenuItem, Manager, SystemTray, SystemTrayEvent, SystemTrayMenu, Window, WindowEvent};
 use lazy_static::lazy_static;
+use tokio::fs;
+use win_msgbox::{w, YesNo};
+use std::os::windows::ffi::OsStrExt;
+use tauri::Builder;
 
 #[derive(Clone, Serialize)]
 struct Payload {

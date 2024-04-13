@@ -1,6 +1,5 @@
 import { Child, Command } from "@tauri-apps/api/shell";
 import FilesystemService from "../Services/FilesystemService";
-import { exit } from "../main";
 import { event, path } from "@tauri-apps/api";
 import UIManager from "./UIManager";
 import WindowManager from "./WindowManager";
