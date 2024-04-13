@@ -1,4 +1,4 @@
-import { event, process } from "@tauri-apps/api";
+import { event, invoke, process } from "@tauri-apps/api";
 import { appWindow } from "@tauri-apps/api/window";
 import SettingsManager from "./Managers/SettingsManager";
 import FilesystemService from "./Services/FilesystemService";
@@ -6,6 +6,7 @@ import TabsManager from "./Managers/TabsManager";
 import EditorManager from "./Managers/EditorManager";
 import UIManager from "./Managers/UIManager";
 import { TabsUIManager } from "./Managers/TabsUIManager";
+import LoaderManager from "./Managers/LoaderManager";
 
 export async function exit() {
   await TabsManager.saveUnsavedTabs();
@@ -32,6 +33,8 @@ document.addEventListener("DOMContentLoaded", async function () {
   await SettingsManager.initializeSettings();
   await TabsManager.initializeTabs();
   await EditorManager.setupEditor();
+  await invoke("init_websocket", { port: LoaderManager.wsPort });
+  await LoaderManager.findLoader();
   await initializeComponents();
   TabsUIManager.initializeTabs();
 

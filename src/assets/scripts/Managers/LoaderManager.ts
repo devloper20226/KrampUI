@@ -1,7 +1,7 @@
 import { Child, Command } from "@tauri-apps/api/shell";
 import FilesystemService from "../Services/FilesystemService";
 import { exit } from "../main";
-import { path } from "@tauri-apps/api";
+import { event, path } from "@tauri-apps/api";
 import UIManager from "./UIManager";
 
 export type InjectionResult = {
@@ -41,6 +41,17 @@ export default class LoaderManager {
 
             await FilesystemService.writeFile("autoexec/__krampui", code);
         }
+    }
+
+    private static async setupWebsocketListener() {
+        event.listen("update", function(event) {
+            const isConnected: boolean = (event.payload as any).message || false;
+            console.log("Got update: " + isConnected)
+
+            if (UIManager.websocketConnected == isConnected) return;
+
+            UIManager.updateWebsocketConnected(isConnected);
+        });
     }
 
     static async inject(): Promise<InjectionResult> {
@@ -108,6 +119,7 @@ export default class LoaderManager {
             if (file.name == "krampus-loader.exe") {
                 this.loaderPath = file.path;
                 this.setupWebsocket();
+                this.setupWebsocketListener();
                 console.log("Found loader: " + this.loaderPath)
                 return true;
             }
